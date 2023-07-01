@@ -1,45 +1,8 @@
 defmodule MayIsBikeMonth.TimeFormatter do
-  def to_hh_mm_ss(0), do: "0:00"
-
-  def to_hh_mm_ss(seconds) do
-    units = [3600, 60]
-
-    [h | t] =
-      Enum.map_reduce(units, seconds, fn unit, val -> {div(val, unit), rem(val, unit)} end)
-      |> elem(0)
-
-    {h, t} = if length(t) == 0, do: {0, [h]}, else: {h, t}
-
-    "#{h}:#{t |> Enum.map_join(":", fn x -> x |> Integer.to_string() |> String.pad_leading(2, "0") end)}"
-  end
-
-  def duration_to_text(seconds) do
-    arr_t = array_times(seconds)
-
-    [
-      Enum.at(arr_t, 0) != 0 && "#{Enum.at(arr_t, 0)} hours",
-      Enum.at(arr_t, 1) != 0 && "#{Enum.at(arr_t, 1)} minutes",
-      Enum.at(arr_t, 2) != 0 && "#{Enum.at(arr_t, 2)} seconds"
-    ]
-    |> Enum.drop_while(&match?(false, &1))
-    |> Enum.join(", ")
-    |> String.trim_trailing(", ")
-    # I HAVE NO IDEA WHY THIS APPEARS
-    |> String.trim_trailing(", false")
-  end
-
-  defp array_times(seconds) do
-    units = [3600, 60, 1]
-
-    # [h | t] =
-    Enum.map_reduce(units, seconds, fn unit, val -> {div(val, unit), rem(val, unit)} end)
-    |> elem(0)
-  end
-
-  def in_timezone(time, timezone) do
-    DateTime.shift_zone(time, timezone)
-    |> elem(1)
-  end
+  @moduledoc """
+  TimeFormatter handles some basic time formatting.
+  Right now it's a grab bag, it will get more organized eventually
+  """
 
   # Currently, Calendar.strftime/1 doesn't support some of the formatting we need (specifically %l)
   # When that changes, we can switch from using timex to using the standard lib
@@ -89,6 +52,48 @@ defmodule MayIsBikeMonth.TimeFormatter do
       true ->
         format(time, "%Y-%-m-%-d")
     end
+  end
+
+  def to_hh_mm_ss(0), do: "0:00"
+
+  def to_hh_mm_ss(seconds) do
+    units = [3600, 60]
+
+    [h | t] =
+      Enum.map_reduce(units, seconds, fn unit, val -> {div(val, unit), rem(val, unit)} end)
+      |> elem(0)
+
+    {h, t} = if length(t) == 0, do: {0, [h]}, else: {h, t}
+
+    "#{h}:#{t |> Enum.map_join(":", fn x -> x |> Integer.to_string() |> String.pad_leading(2, "0") end)}"
+  end
+
+  def duration_to_text(seconds) do
+    arr_t = array_times(seconds)
+
+    [
+      Enum.at(arr_t, 0) != 0 && "#{Enum.at(arr_t, 0)} hours",
+      Enum.at(arr_t, 1) != 0 && "#{Enum.at(arr_t, 1)} minutes",
+      Enum.at(arr_t, 2) != 0 && "#{Enum.at(arr_t, 2)} seconds"
+    ]
+    |> Enum.drop_while(&match?(false, &1))
+    |> Enum.join(", ")
+    |> String.trim_trailing(", ")
+    # I HAVE NO IDEA WHY THIS APPEARS
+    |> String.trim_trailing(", false")
+  end
+
+  defp array_times(seconds) do
+    units = [3600, 60, 1]
+
+    # [h | t] =
+    Enum.map_reduce(units, seconds, fn unit, val -> {div(val, unit), rem(val, unit)} end)
+    |> elem(0)
+  end
+
+  def in_timezone(time, timezone) do
+    DateTime.shift_zone(time, timezone)
+    |> elem(1)
   end
 
   def timezone_selects do
