@@ -35,5 +35,8 @@ may_is_bike_month-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Language server, generally auto ignored
+.elixir_ls
+
 # Construction notes. Contains secrets
 notes.md
