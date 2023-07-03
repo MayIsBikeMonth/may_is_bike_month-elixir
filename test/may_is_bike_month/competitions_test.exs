@@ -41,9 +41,10 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       assert competition.periods == target_periods
     end
 
-    test "competition periods 2022 with get_competition!" do
+    test "competition periods 2022 with current_competition" do
       fixture = competition_fixture(start_date: ~D[2022-05-01], end_date: ~D[2022-05-31])
-      competition = Competitions.get_competition!(fixture.id)
+      competition = Competitions.current_competition()
+      assert fixture == competition
 
       assert competition.periods == [
                %{start_date: ~D[2022-05-01], end_date: ~D[2022-05-01]},

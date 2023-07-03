@@ -2,8 +2,7 @@ defmodule MayIsBikeMonthWeb.PageController do
   use MayIsBikeMonthWeb, :controller
 
   def home(conn, _params) do
-    # The home page is often custom made,
-    # so skip the default app layout.
-    render(conn, :home)
+    competition = MayIsBikeMonth.Competitions.current_competition()
+    render(conn, :home, competition: competition)
   end
 end

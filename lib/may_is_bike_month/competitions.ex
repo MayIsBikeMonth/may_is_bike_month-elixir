@@ -22,6 +22,12 @@ defmodule MayIsBikeMonth.Competitions do
     |> Enum.map(&with_periods/1)
   end
 
+  def current_competition do
+    Competition
+    |> Repo.one()
+    |> with_periods()
+  end
+
   @doc """
   Gets a single competition.
 
@@ -130,6 +136,8 @@ defmodule MayIsBikeMonth.Competitions do
     monday = Date.add(date, -6)
     Enum.max([monday, Date.beginning_of_month(date)], Date)
   end
+
+  defp with_periods(nil), do: nil
 
   defp with_periods(%Competition{} = competition) do
     %{competition | periods: competition_periods(competition)}
