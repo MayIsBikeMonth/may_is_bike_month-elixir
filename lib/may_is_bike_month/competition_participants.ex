@@ -98,7 +98,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
       %Ecto.Changeset{data: %CompetitionParticipant{}}
 
   """
-  def change_competition_participant(%CompetitionParticipant{} = competition_participant, attrs \\ %{}) do
+  def change_competition_participant(
+        %CompetitionParticipant{} = competition_participant,
+        attrs \\ %{}
+      ) do
     CompetitionParticipant.changeset(competition_participant, attrs)
   end
 end

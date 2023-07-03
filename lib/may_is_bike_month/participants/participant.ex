@@ -17,7 +17,23 @@ defmodule MayIsBikeMonth.Participants.Participant do
   @doc false
   def changeset(participant, attrs) do
     participant
-    |> cast(attrs, [:display_name, :first_name, :last_name, :strava_username, :strava_id, :image_url, :strava_auth])
-    |> validate_required([:display_name, :first_name, :last_name, :strava_username, :strava_id, :image_url, :strava_auth])
+    |> cast(attrs, [
+      :display_name,
+      :first_name,
+      :last_name,
+      :strava_username,
+      :strava_id,
+      :image_url,
+      :strava_auth
+    ])
+    |> validate_required([
+      :display_name,
+      :first_name,
+      :last_name,
+      :strava_username,
+      :strava_id,
+      :image_url,
+      :strava_auth
+    ])
   end
 end

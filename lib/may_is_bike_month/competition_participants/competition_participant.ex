@@ -5,8 +5,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
   schema "competition_participants" do
     field :include_in_competition, :boolean, default: false
     field :score, :float
-    field :athlete_id, :id
+    field :participant_id, :id
     field :competition_id, :id
+    field :valid_activity_types, :map, virtual: true
 
     timestamps()
   end

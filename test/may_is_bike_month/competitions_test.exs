@@ -21,7 +21,11 @@ defmodule MayIsBikeMonth.CompetitionsTest do
     end
 
     test "create_competition/1 with valid data creates a competition" do
-      valid_attrs = %{display_name: "some display_name", end_date: ~D[2023-06-30], start_date: ~D[2023-06-30]}
+      valid_attrs = %{
+        display_name: "some display_name",
+        end_date: ~D[2023-06-30],
+        start_date: ~D[2023-06-30]
+      }
 
       assert {:ok, %Competition{} = competition} = Competitions.create_competition(valid_attrs)
       assert competition.display_name == "some display_name"
@@ -35,9 +39,16 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
     test "update_competition/2 with valid data updates the competition" do
       competition = competition_fixture()
-      update_attrs = %{display_name: "some updated display_name", end_date: ~D[2023-07-01], start_date: ~D[2023-07-01]}
 
-      assert {:ok, %Competition{} = competition} = Competitions.update_competition(competition, update_attrs)
+      update_attrs = %{
+        display_name: "some updated display_name",
+        end_date: ~D[2023-07-01],
+        start_date: ~D[2023-07-01]
+      }
+
+      assert {:ok, %Competition{} = competition} =
+               Competitions.update_competition(competition, update_attrs)
+
       assert competition.display_name == "some updated display_name"
       assert competition.end_date == ~D[2023-07-01]
       assert competition.start_date == ~D[2023-07-01]
@@ -45,7 +56,10 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
     test "update_competition/2 with invalid data returns error changeset" do
       competition = competition_fixture()
-      assert {:error, %Ecto.Changeset{}} = Competitions.update_competition(competition, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Competitions.update_competition(competition, @invalid_attrs)
+
       assert competition == Competitions.get_competition!(competition.id)
     end
 

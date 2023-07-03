@@ -22,7 +22,31 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
   @doc false
   def changeset(competition_activity, attrs) do
     competition_activity
-    |> cast(attrs, [:display_name, :duration_seconds, :start_at, :timezone, :start_date, :end_date, :strava_id, :strava_data, :include_in_competition, :distance_meters, :elevation_meters])
-    |> validate_required([:display_name, :duration_seconds, :start_at, :timezone, :start_date, :end_date, :strava_id, :strava_data, :include_in_competition, :distance_meters, :elevation_meters])
+    |> cast(attrs, [
+      :display_name,
+      :duration_seconds,
+      :start_at,
+      :timezone,
+      :start_date,
+      :end_date,
+      :strava_id,
+      :strava_data,
+      :include_in_competition,
+      :distance_meters,
+      :elevation_meters
+    ])
+    |> validate_required([
+      :display_name,
+      :duration_seconds,
+      :start_at,
+      :timezone,
+      :start_date,
+      :end_date,
+      :strava_id,
+      :strava_data,
+      :include_in_competition,
+      :distance_meters,
+      :elevation_meters
+    ])
   end
 end
