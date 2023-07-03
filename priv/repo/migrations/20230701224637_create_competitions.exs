@@ -6,6 +6,7 @@ defmodule MayIsBikeMonth.Repo.Migrations.CreateCompetitions do
       add :display_name, :string
       add :start_date, :date
       add :end_date, :date
+      add :slug, :string
 
       timestamps()
     end

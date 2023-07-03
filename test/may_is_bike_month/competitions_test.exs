@@ -26,6 +26,7 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       competition = competition_fixture()
       assert competition.start_date == ~D[2023-05-01]
       assert competition.end_date == ~D[2023-05-31]
+      assert competition.display_name == "May is Bike Month 2023"
 
       target_periods = [
         %{start_date: ~D[2023-05-01], end_date: ~D[2023-05-07]},
@@ -58,6 +59,7 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
     test "create_competition/1 with valid data creates a competition" do
       valid_attrs = %{
+        slug: "some-slug",
         display_name: "some display_name",
         end_date: ~D[2024-05-31],
         start_date: ~D[2024-05-01]
@@ -67,6 +69,7 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       assert competition.display_name == "some display_name"
       assert competition.end_date == ~D[2024-05-31]
       assert competition.start_date == ~D[2024-05-01]
+      assert competition.slug == "some-slug"
       periods = competition.periods
       assert List.first(periods) == %{start_date: ~D[2024-05-01], end_date: ~D[2024-05-05]}
       assert List.last(periods) == %{start_date: ~D[2024-05-27], end_date: ~D[2024-05-31]}

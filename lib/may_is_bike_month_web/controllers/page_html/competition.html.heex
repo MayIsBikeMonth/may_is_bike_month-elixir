@@ -1,0 +1,68 @@
+<h1 class="text-xl mb-4">
+  <%= @competition.display_name %>
+</h1>
+
+<div class="relative overflow-x-auto">
+  <table class="w-full text-sm text-left text-gray-500">
+    <thead class="text-xs text-gray-500 bg-gray-50 border-b-2">
+      <tr>
+        <th scope="col" class="border-r-2"></th>
+        <th :for={period <- @competition.periods} class="border-r-2">
+          <span class="block text-md text-center py-2">
+            <%= MayIsBikeMonth.TimeFormatter.format(period.start_date, "%b %-d") %> - <%= MayIsBikeMonth.TimeFormatter.format(
+              period.end_date,
+              "%b %-d"
+            ) %>
+          </span>
+          <div class="grid grid-cols-3">
+            <div class="px-1 border-r">Feet</div>
+            <div class="px-1 border-r">Miles</div>
+            <div class="px-1">Days</div>
+          </div>
+        </th>
+        <th scope="col" class="text-gray-900">
+          <span class="block text-md text-center py-2">
+            Total
+          </span>
+          <div class="grid grid-cols-3">
+            <div class="px-1 border-r">Feet</div>
+            <div class="px-1 border-r">Miles</div>
+            <div class="px-1">Days</div>
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="bg-white border-b-2">
+        <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap border-r-2">
+          Apple MacBook Pro 17"
+        </th>
+        <td class="px-6 py-4">
+          Silver
+        </td>
+        <td class="px-6 py-4">
+          Laptop
+        </td>
+        <td class="px-6 py-4">
+          $2999
+        </td>
+        <td class="px-6 py-4"></td>
+      </tr>
+      <tr class="bg-gray-50">
+        <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap border-r-2">
+          Microsoft Surface Pro
+        </th>
+        <td class="px-6 py-4">
+          White
+        </td>
+        <td class="px-6 py-4">
+          Laptop PC
+        </td>
+        <td class="px-6 py-4">
+          $1999
+        </td>
+        <td class="px-6 py-4"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

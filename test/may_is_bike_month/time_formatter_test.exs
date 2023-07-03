@@ -36,7 +36,13 @@ defmodule MayIsBikeMonth.TimeFormatterTest do
     end
   end
 
-  describe "format/2" do
+  describe "format/2 (date, format)" do
+    test "out_format: may 5" do
+      assert TimeFormatter.format(~D[2023-05-05], "%b %-d") == "May 5"
+    end
+  end
+
+  describe "format/2 (datetime, format)" do
     test "out_format: strftime" do
       # Calendar.strftime/2 doesn't accept flags or %l (2023-6-27)
       assert TimeFormatter.format(~U[2023-06-25 20:29:00Z], "%-l:%M%P") == "8:29pm"

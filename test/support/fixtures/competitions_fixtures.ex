@@ -11,9 +11,9 @@ defmodule MayIsBikeMonth.CompetitionsFixtures do
     {:ok, competition} =
       attrs
       |> Enum.into(%{
-        display_name: "May Is Bike Month 2023",
         end_date: ~D[2023-05-31],
-        start_date: ~D[2023-05-01]
+        start_date: ~D[2023-05-01],
+        slug: "2023"
       })
       |> MayIsBikeMonth.Competitions.create_competition()
 

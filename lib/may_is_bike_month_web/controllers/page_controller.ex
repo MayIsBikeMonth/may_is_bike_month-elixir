@@ -3,6 +3,11 @@ defmodule MayIsBikeMonthWeb.PageController do
 
   def home(conn, _params) do
     competition = MayIsBikeMonth.Competitions.current_competition()
-    render(conn, :home, competition: competition)
+
+    if competition do
+      render(conn, :competition, competition: competition)
+    else
+      render(conn, :home)
+    end
   end
 end
