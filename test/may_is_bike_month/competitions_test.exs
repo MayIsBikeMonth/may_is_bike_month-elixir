@@ -20,17 +20,55 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       assert Competitions.get_competition!(competition.id) == competition
     end
 
+    test "competition periods 2023" do
+      assert Date.day_of_week(~D[2023-05-01]) == 1
+      assert Date.day_of_week(~D[2023-05-07]) == 7
+      competition = competition_fixture()
+      assert competition.start_date == ~D[2023-05-01]
+      assert competition.end_date == ~D[2023-05-31]
+
+      target_periods = [
+        %{start_date: ~D[2023-05-01], end_date: ~D[2023-05-07]},
+        %{start_date: ~D[2023-05-08], end_date: ~D[2023-05-14]},
+        %{start_date: ~D[2023-05-15], end_date: ~D[2023-05-21]},
+        %{start_date: ~D[2023-05-22], end_date: ~D[2023-05-28]},
+        %{start_date: ~D[2023-05-29], end_date: ~D[2023-05-31]}
+      ]
+
+      assert Competitions.competition_periods(competition.start_date, competition.end_date) ==
+               target_periods
+
+      assert competition.periods == target_periods
+    end
+
+    test "competition periods 2022 with get_competition!" do
+      fixture = competition_fixture(start_date: ~D[2022-05-01], end_date: ~D[2022-05-31])
+      competition = Competitions.get_competition!(fixture.id)
+
+      assert competition.periods == [
+               %{start_date: ~D[2022-05-01], end_date: ~D[2022-05-01]},
+               %{start_date: ~D[2022-05-02], end_date: ~D[2022-05-08]},
+               %{start_date: ~D[2022-05-09], end_date: ~D[2022-05-15]},
+               %{start_date: ~D[2022-05-16], end_date: ~D[2022-05-22]},
+               %{start_date: ~D[2022-05-23], end_date: ~D[2022-05-29]},
+               %{start_date: ~D[2022-05-30], end_date: ~D[2022-05-31]}
+             ]
+    end
+
     test "create_competition/1 with valid data creates a competition" do
       valid_attrs = %{
         display_name: "some display_name",
-        end_date: ~D[2023-06-30],
-        start_date: ~D[2023-06-30]
+        end_date: ~D[2024-05-31],
+        start_date: ~D[2024-05-01]
       }
 
       assert {:ok, %Competition{} = competition} = Competitions.create_competition(valid_attrs)
       assert competition.display_name == "some display_name"
-      assert competition.end_date == ~D[2023-06-30]
-      assert competition.start_date == ~D[2023-06-30]
+      assert competition.end_date == ~D[2024-05-31]
+      assert competition.start_date == ~D[2024-05-01]
+      periods = competition.periods
+      assert List.first(periods) == %{start_date: ~D[2024-05-01], end_date: ~D[2024-05-05]}
+      assert List.last(periods) == %{start_date: ~D[2024-05-27], end_date: ~D[2024-05-31]}
     end
 
     test "create_competition/1 with invalid data returns error changeset" do
@@ -42,16 +80,14 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
       update_attrs = %{
         display_name: "some updated display_name",
-        end_date: ~D[2023-07-01],
-        start_date: ~D[2023-07-01]
+        end_date: ~D[2023-05-01],
+        start_date: ~D[2023-05-31]
       }
 
       assert {:ok, %Competition{} = competition} =
                Competitions.update_competition(competition, update_attrs)
 
       assert competition.display_name == "some updated display_name"
-      assert competition.end_date == ~D[2023-07-01]
-      assert competition.start_date == ~D[2023-07-01]
     end
 
     test "update_competition/2 with invalid data returns error changeset" do

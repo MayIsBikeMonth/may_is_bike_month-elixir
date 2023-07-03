@@ -6,6 +6,7 @@ defmodule MayIsBikeMonth.Competitions.Competition do
     field :display_name, :string
     field :end_date, :date
     field :start_date, :date
+    field :periods, {:array, :map}, virtual: true
 
     timestamps()
   end
@@ -15,5 +16,20 @@ defmodule MayIsBikeMonth.Competitions.Competition do
     competition
     |> cast(attrs, [:display_name, :start_date, :end_date])
     |> validate_required([:display_name, :start_date, :end_date])
+    |> with_periods()
+  end
+
+  defp with_periods(changeset) do
+    start_date = get_field(changeset, :start_date)
+    end_date = get_field(changeset, :end_date)
+
+    periods =
+      if start_date && end_date do
+        MayIsBikeMonth.Competitions.competition_periods(start_date, end_date)
+      else
+        []
+      end
+
+    put_change(changeset, :periods, periods)
   end
 end

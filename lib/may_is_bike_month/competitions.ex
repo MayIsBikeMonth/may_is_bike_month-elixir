@@ -19,6 +19,7 @@ defmodule MayIsBikeMonth.Competitions do
   """
   def list_competitions do
     Repo.all(Competition)
+    |> Enum.map(&with_periods/1)
   end
 
   @doc """
@@ -35,7 +36,10 @@ defmodule MayIsBikeMonth.Competitions do
       ** (Ecto.NoResultsError)
 
   """
-  def get_competition!(id), do: Repo.get!(Competition, id)
+  def get_competition!(id) do
+    Repo.get!(Competition, id)
+    |> with_periods()
+  end
 
   @doc """
   Creates a competition.
@@ -100,5 +104,34 @@ defmodule MayIsBikeMonth.Competitions do
   """
   def change_competition(%Competition{} = competition, attrs \\ %{}) do
     Competition.changeset(competition, attrs)
+  end
+
+  def competition_periods(%Competition{} = competition) do
+    competition_periods(competition.start_date, competition.end_date)
+  end
+
+  def competition_periods(start_date, end_date) do
+    end_date_periods =
+      Date.range(start_date, end_date)
+      |> Enum.filter(fn date -> Date.day_of_week(date) == 7 end)
+      |> Enum.map(fn date -> %{end_date: date} end)
+      |> Enum.map(fn map -> Map.put(map, :start_date, week_start(map.end_date)) end)
+
+    last_day = List.last(end_date_periods).end_date
+
+    if last_day == end_date do
+      end_date_periods
+    else
+      end_date_periods ++ [%{start_date: Date.add(last_day, 1), end_date: end_date}]
+    end
+  end
+
+  defp week_start(date) do
+    monday = Date.add(date, -6)
+    Enum.max([monday, Date.beginning_of_month(date)], Date)
+  end
+
+  defp with_periods(%Competition{} = competition) do
+    %{competition | periods: competition_periods(competition)}
   end
 end
