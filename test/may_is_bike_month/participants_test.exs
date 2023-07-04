@@ -30,7 +30,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
     test "create_participant/1 with valid data creates a participant" do
       valid_attrs = %{
-        display_name: "some display_name",
         first_name: "some first_name",
         image_url: "some image_url",
         last_name: "some last_name",
@@ -40,7 +39,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       }
 
       assert {:ok, %Participant{} = participant} = Participants.create_participant(valid_attrs)
-      assert participant.display_name == "some display_name"
+      assert participant.display_name == "some strava_username"
       assert participant.first_name == "some first_name"
       assert participant.image_url == "some image_url"
       assert participant.last_name == "some last_name"
@@ -51,6 +50,25 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
     test "create_participant/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Participants.create_participant(@invalid_attrs)
+    end
+
+    test "create_partipant/1 with duplicate strava_id returns error changeset" do
+      participant_attrs = %{
+        display_name: "some display_name",
+        first_name: "some first_name",
+        image_url: "some image_url",
+        last_name: "some last_name",
+        strava_auth: %{},
+        strava_id: "123456",
+        strava_username: "some strava_username"
+      }
+
+      {:ok, participant} = Participants.create_participant(participant_attrs)
+      duplicate_changeset = Participant.changeset(%Participant{}, participant_attrs)
+      {:error, changeset} = Repo.insert(duplicate_changeset)
+
+      {error, _} = changeset.errors[:strava_id]
+      assert error == "has already been taken"
     end
 
     test "update_participant/2 with valid data updates the participant" do

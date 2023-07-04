@@ -27,13 +27,17 @@ defmodule MayIsBikeMonth.Participants.Participant do
       :strava_auth
     ])
     |> validate_required([
-      :display_name,
-      :first_name,
-      :last_name,
       :strava_username,
       :strava_id,
-      :image_url,
-      :strava_auth
+      :image_url
     ])
+    |> with_display_name()
+    |> unique_constraint(:strava_id)
+  end
+
+  defp with_display_name(changeset) do
+    display_name = get_field(changeset, :display_name)
+    strava_username = get_field(changeset, :strava_username)
+    put_change(changeset, :display_name, display_name || strava_username)
   end
 end

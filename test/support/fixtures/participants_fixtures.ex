@@ -11,12 +11,11 @@ defmodule MayIsBikeMonth.ParticipantsFixtures do
     {:ok, participant} =
       attrs
       |> Enum.into(%{
-        display_name: "some display_name",
         first_name: "some first_name",
         image_url: "some image_url",
         last_name: "some last_name",
         strava_auth: %{},
-        strava_id: "some strava_id",
+        strava_id: "2430215",
         strava_username: "some strava_username"
       })
       |> MayIsBikeMonth.Participants.create_participant()

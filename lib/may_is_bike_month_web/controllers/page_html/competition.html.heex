@@ -3,7 +3,7 @@
 </h1>
 
 <div class="relative overflow-x-auto">
-  <table class="w-full text-sm text-left text-gray-500">
+  <table class="w-full text-sm text-left text-gray-800">
     <thead class="text-xs text-gray-500 bg-gray-50 border-b-2">
       <tr>
         <th scope="col" class="border-r-2"></th>
@@ -15,38 +15,56 @@
             ) %>
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 border-r">Feet</div>
-            <div class="px-1 border-r">Miles</div>
-            <div class="px-1">Days</div>
+            <div class="px-1 pb-1 border-r">Feet</div>
+            <div class="px-1 pb-1 border-r">Miles</div>
+            <div class="px-1 pb-1">Days</div>
           </div>
         </th>
-        <th scope="col" class="text-gray-900">
+        <th scope="col" class="text-black">
           <span class="block text-md text-center py-2">
             Total
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 border-r">Feet</div>
-            <div class="px-1 border-r">Miles</div>
-            <div class="px-1">Days</div>
+            <div class="px-1 pb-1 border-r">Feet</div>
+            <div class="px-1 pb-1 border-r">Miles</div>
+            <div class="px-1 pb-1">Days</div>
           </div>
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr class="bg-white border-b-2">
-        <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap border-r-2">
-          Apple MacBook Pro 17"
+      <tr :for={participant <- @participants} class="bg-white border-b-2">
+        <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-r-2">
+          <a href={"https://www.strava.com/athletes/#{participant.strava_id}"}>
+            <%= participant.display_name %>
+          </a>
         </th>
-        <td class="px-6 py-4">
-          Silver
+        <td :for={period <- @competition.periods} class="border-r-2">
+          <div class="grid grid-cols-3">
+            <div class="px-1 border-r py-1">
+              Feet
+            </div>
+            <div class="px-1 border-r py-1">
+              Miles
+            </div>
+            <div class="px-1 py-1">
+              Days
+            </div>
+          </div>
         </td>
-        <td class="px-6 py-4">
-          Laptop
+        <td scope="col" class="text-black font-bold">
+          <div class="grid grid-cols-3">
+            <div class="px-1 border-r py-1">
+              Feet
+            </div>
+            <div class="px-1 border-r py-1">
+              Miles
+            </div>
+            <div class="px-1 py-1">
+              Days
+            </div>
+          </div>
         </td>
-        <td class="px-6 py-4">
-          $2999
-        </td>
-        <td class="px-6 py-4"></td>
       </tr>
       <tr class="bg-gray-50">
         <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap border-r-2">

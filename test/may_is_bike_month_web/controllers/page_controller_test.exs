@@ -3,6 +3,7 @@ defmodule MayIsBikeMonthWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
+    MayIsBikeMonth.ParticipantsFixtures.participant_fixture()
     conn = get(conn, ~p"/")
     assert html_response(conn, 200) =~ "May is Bike Month"
   end
