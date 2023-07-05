@@ -5,8 +5,13 @@ defmodule MayIsBikeMonthWeb.PageController do
     competition = MayIsBikeMonth.Competitions.current_competition()
 
     if competition do
-      participants = MayIsBikeMonth.Participants.list_participants()
-      render(conn, :competition, competition: competition, participants: participants)
+      competition_participants =
+        MayIsBikeMonth.CompetitionParticipants.for_competition(competition)
+
+      render(conn, :competition,
+        competition: competition,
+        competition_participants: competition_participants
+      )
     else
       render(conn, :home)
     end

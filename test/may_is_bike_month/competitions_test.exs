@@ -113,5 +113,13 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       competition = competition_fixture()
       assert %Ecto.Changeset{} = Competitions.change_competition(competition)
     end
+
+    test "create_competition_participants/1 creates competition_participants for the competition" do
+      competition = competition_fixture()
+      participant = MayIsBikeMonth.ParticipantsFixtures.participant_fixture()
+      Competitions.create_competition_participants(competition)
+
+      assert length(MayIsBikeMonth.CompetitionParticipants.list_competition_participants()) == 1
+    end
   end
 end

@@ -112,6 +112,16 @@ defmodule MayIsBikeMonth.Competitions do
     Competition.changeset(competition, attrs)
   end
 
+  def create_competition_participants(%Competition{} = competition) do
+    MayIsBikeMonth.Participants.list_participants()
+    |> Enum.map(fn participant ->
+      MayIsBikeMonth.CompetitionParticipants.create_competition_participant(%{
+        competition_id: competition.id,
+        participant_id: participant.id
+      })
+    end)
+  end
+
   def competition_periods(%Competition{} = competition) do
     competition_periods(competition.start_date, competition.end_date)
   end

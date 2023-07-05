@@ -22,6 +22,16 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> Repo.preload(:participant)
   end
 
+  def for_competition(competition) do
+    query =
+      from(cp in CompetitionParticipant,
+        where: cp.competition_id == ^competition.id,
+        order_by: [desc: cp.score]
+      )
+      |> Repo.all()
+      |> Repo.preload(:participant)
+  end
+
   @doc """
   Gets a single competition_participant.
 

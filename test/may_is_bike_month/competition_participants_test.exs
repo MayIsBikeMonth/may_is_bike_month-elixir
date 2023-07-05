@@ -7,12 +7,19 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
     alias MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
 
     import MayIsBikeMonth.CompetitionParticipantsFixtures
+    import MayIsBikeMonth.CompetitionsFixtures
+    import MayIsBikeMonth.ParticipantsFixtures
 
     @invalid_attrs %{participant_id: nil, competition_id: nil}
 
     test "list_competition_participants/0 returns all competition_participants" do
       competition_participant = competition_participant_fixture()
       assert CompetitionParticipants.list_competition_participants() == [competition_participant]
+
+      competition =
+        MayIsBikeMonth.Competitions.get_competition!(competition_participant.competition_id)
+
+      assert CompetitionParticipants.for_competition(competition) == [competition_participant]
     end
 
     test "get_competition_participant!/1 returns the competition_participant with given id" do
@@ -22,9 +29,24 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                competition_participant
     end
 
+    test "competition_fixture uses passed in competition and participant" do
+      competition = competition_fixture()
+      participant = participant_fixture()
+
+      competition_participant =
+        competition_participant_fixture(%{
+          competition_id: competition.id,
+          participant_id: participant.id
+        })
+
+      assert competition_participant.competition_id == competition.id
+      assert competition_participant.participant_id == participant.id
+      assert competition_participant.participant == participant
+    end
+
     test "create_competition_participant/1 with valid data creates a competition_participant" do
-      competition = MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
-      participant = MayIsBikeMonth.ParticipantsFixtures.participant_fixture()
+      competition = competition_fixture()
+      participant = participant_fixture()
 
       valid_attrs = %{
         include_in_competition: true,

@@ -11,12 +11,15 @@ defmodule MayIsBikeMonth.CompetitionParticipantsFixtures do
   Generate a competition_participant.
   """
   def competition_participant_fixture(attrs \\ %{}) do
+    participant_id = attrs[:participant_id] || participant_fixture() |> Map.get(:id)
+    competition_id = attrs[:competition_id] || competition_fixture() |> Map.get(:id)
+
     {:ok, competition_participant} =
       attrs
       |> Enum.into(%{
         include_in_competition: true,
-        participant_id: participant_fixture() |> Map.get(:id),
-        competition_id: competition_fixture() |> Map.get(:id)
+        participant_id: participant_id,
+        competition_id: competition_id
       })
       |> MayIsBikeMonth.CompetitionParticipants.create_competition_participant()
 
