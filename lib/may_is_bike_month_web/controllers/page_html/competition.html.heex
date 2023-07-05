@@ -46,7 +46,7 @@
         <td :for={period <- @competition.periods} class="border-r-2">
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1">
-              Feet
+              Feet <%= period.start_date %> <% # Stop warning %>
             </div>
             <div class="px-1 border-r py-1">
               Miles

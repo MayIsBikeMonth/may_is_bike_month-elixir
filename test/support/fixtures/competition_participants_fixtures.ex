@@ -4,6 +4,9 @@ defmodule MayIsBikeMonth.CompetitionParticipantsFixtures do
   entities via the `MayIsBikeMonth.CompetitionParticipants` context.
   """
 
+  import MayIsBikeMonth.CompetitionsFixtures
+  import MayIsBikeMonth.ParticipantsFixtures
+
   @doc """
   Generate a competition_participant.
   """
@@ -12,7 +15,8 @@ defmodule MayIsBikeMonth.CompetitionParticipantsFixtures do
       attrs
       |> Enum.into(%{
         include_in_competition: true,
-        score: 120.5
+        participant_id: participant_fixture() |> Map.get(:id),
+        competition_id: competition_fixture() |> Map.get(:id)
       })
       |> MayIsBikeMonth.CompetitionParticipants.create_competition_participant()
 

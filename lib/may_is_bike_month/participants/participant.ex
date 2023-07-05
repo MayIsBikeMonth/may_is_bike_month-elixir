@@ -11,6 +11,9 @@ defmodule MayIsBikeMonth.Participants.Participant do
     field :strava_id, :string
     field :strava_username, :string
 
+    has_many :competition_participants,
+             MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
+
     timestamps()
   end
 

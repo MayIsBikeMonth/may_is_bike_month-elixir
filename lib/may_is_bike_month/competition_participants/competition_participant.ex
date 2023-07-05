@@ -4,9 +4,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
 
   schema "competition_participants" do
     field :include_in_competition, :boolean, default: false
-    field :score, :float
-    field :participant_id, :id
-    field :competition_id, :id
+    field :score, :float, default: 0.0
+    belongs_to :participant, MayIsBikeMonth.Participants.Participant
+    belongs_to :competition, MayIsBikeMonth.Competitions.Competition
     field :valid_activity_types, :map, virtual: true
 
     timestamps()
@@ -15,7 +15,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
   @doc false
   def changeset(competition_participant, attrs) do
     competition_participant
-    |> cast(attrs, [:score, :include_in_competition])
-    |> validate_required([:score, :include_in_competition])
+    |> cast(attrs, [:score, :include_in_competition, :participant_id, :competition_id])
+    |> validate_required([:competition_id, :participant_id])
   end
 end

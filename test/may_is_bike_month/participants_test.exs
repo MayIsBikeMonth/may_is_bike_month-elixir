@@ -63,7 +63,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
         strava_username: "some strava_username"
       }
 
-      {:ok, participant} = Participants.create_participant(participant_attrs)
+      Participants.create_participant(participant_attrs)
       duplicate_changeset = Participant.changeset(%Participant{}, participant_attrs)
       {:error, changeset} = Repo.insert(duplicate_changeset)
 

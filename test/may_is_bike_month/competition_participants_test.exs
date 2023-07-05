@@ -8,7 +8,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
     import MayIsBikeMonth.CompetitionParticipantsFixtures
 
-    @invalid_attrs %{include_in_competition: nil, score: nil}
+    @invalid_attrs %{participant_id: nil, competition_id: nil}
 
     test "list_competition_participants/0 returns all competition_participants" do
       competition_participant = competition_participant_fixture()
@@ -23,13 +23,24 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
     end
 
     test "create_competition_participant/1 with valid data creates a competition_participant" do
-      valid_attrs = %{include_in_competition: true, score: 120.5}
+      competition = MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
+      participant = MayIsBikeMonth.ParticipantsFixtures.participant_fixture()
+
+      valid_attrs = %{
+        include_in_competition: true,
+        competition_id: competition.id,
+        participant_id: participant.id
+      }
 
       assert {:ok, %CompetitionParticipant{} = competition_participant} =
                CompetitionParticipants.create_competition_participant(valid_attrs)
 
       assert competition_participant.include_in_competition == true
-      assert competition_participant.score == 120.5
+      assert competition_participant.score == 0
+      assert competition_participant.competition_id == competition.id
+      assert competition_participant.participant_id == participant.id
+      # Always return with participant
+      assert competition_participant.participant == participant
     end
 
     test "create_competition_participant/1 with invalid data returns error changeset" do
@@ -39,7 +50,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
     test "update_competition_participant/2 with valid data updates the competition_participant" do
       competition_participant = competition_participant_fixture()
-      update_attrs = %{include_in_competition: false, score: 456.7}
+      update_attrs = %{include_in_competition: false}
 
       assert {:ok, %CompetitionParticipant{} = competition_participant} =
                CompetitionParticipants.update_competition_participant(
@@ -48,7 +59,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                )
 
       assert competition_participant.include_in_competition == false
-      assert competition_participant.score == 456.7
+      assert competition_participant.score == 0
     end
 
     test "update_competition_participant/2 with invalid data returns error changeset" do

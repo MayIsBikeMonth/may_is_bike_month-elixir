@@ -19,6 +19,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   """
   def list_competition_participants do
     Repo.all(CompetitionParticipant)
+    |> Repo.preload(:participant)
   end
 
   @doc """
@@ -35,7 +36,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
       ** (Ecto.NoResultsError)
 
   """
-  def get_competition_participant!(id), do: Repo.get!(CompetitionParticipant, id)
+  def get_competition_participant!(id) do
+    Repo.get!(CompetitionParticipant, id)
+    |> Repo.preload(:participant)
+  end
 
   @doc """
   Creates a competition_participant.
@@ -53,6 +57,15 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     %CompetitionParticipant{}
     |> CompetitionParticipant.changeset(attrs)
     |> Repo.insert()
+    |> with_participant()
+  end
+
+  defp with_participant({:error, changeset}) do
+    {:error, changeset}
+  end
+
+  defp with_participant({:ok, competition_participant}) do
+    {:ok, Repo.preload(competition_participant, :participant)}
   end
 
   @doc """
@@ -71,6 +84,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     competition_participant
     |> CompetitionParticipant.changeset(attrs)
     |> Repo.update()
+    |> with_participant()
   end
 
   @doc """

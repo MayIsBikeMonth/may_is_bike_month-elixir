@@ -9,6 +9,9 @@ defmodule MayIsBikeMonth.Competitions.Competition do
     field :slug, :string
     field :periods, {:array, :map}, virtual: true
 
+    has_many :competition_participants,
+             MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
+
     timestamps()
   end
 
