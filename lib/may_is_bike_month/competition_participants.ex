@@ -60,9 +60,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> with_participant()
   end
 
-  defp with_participant({:error, changeset}) do
-    {:error, changeset}
-  end
+  defp with_participant({:error, changeset}), do: {:error, changeset}
 
   defp with_participant({:ok, competition_participant}) do
     {:ok, Repo.preload(competition_participant, :participant)}
