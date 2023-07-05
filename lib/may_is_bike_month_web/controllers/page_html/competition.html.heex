@@ -3,7 +3,7 @@
 </h1>
 
 <div class="relative overflow-x-auto">
-  <table class="w-full text-sm text-left text-gray-800">
+  <table class="w-full text-sm text-left text-gray-800" id="competition-table">
     <thead class="text-xs text-gray-500 bg-gray-50 border-b-2">
       <tr>
         <th scope="col" class="border-r-2"></th>
@@ -33,10 +33,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr :for={participant <- @participants} class="bg-white border-b-2">
+      <tr
+        :for={{participant, ind} <- Enum.with_index(@participants)}
+        id={"participant_#{participant.id}"}
+        class={"border-b-2 #{if (rem(ind, 2) == 1), do: 'bg-gray-50', else: 'bg-white'}"}
+      >
         <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-r-2">
           <a href={"https://www.strava.com/athletes/#{participant.strava_id}"}>
-            <%= participant.display_name %>
+            <%= participant.display_name %> <%= ind %>
           </a>
         </th>
         <td :for={period <- @competition.periods} class="border-r-2">
