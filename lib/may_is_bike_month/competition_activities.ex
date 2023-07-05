@@ -3,6 +3,15 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   The CompetitionActivities context.
   """
 
+  @ignored_keys [
+    "map",
+    "segment_efforts",
+    "splits_metric",
+    "splits_standard",
+    "laps",
+    "stats_visibility"
+  ]
+
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
 
@@ -36,6 +45,41 @@ defmodule MayIsBikeMonth.CompetitionActivities do
 
   """
   def get_competition_activity!(id), do: Repo.get!(CompetitionActivity, id)
+
+  def strava_attrs_from_data(strava_data) do
+    start_at = Timex.parse!(strava_data["start_date"], "{RFC3339z}")
+    start_date = DateTime.to_date(Timex.parse!(strava_data["start_date_local"], "{RFC3339z}"))
+
+    timezone =
+      Regex.replace(~r/\([^\)]*\)/, strava_data["timezone"], "")
+      |> String.trim()
+
+    %{
+      strava_id: "#{strava_data["id"]}",
+      start_date: start_date,
+      end_date: nil,
+      timezone: timezone,
+      start_at: start_at,
+      display_name: strava_data["name"],
+      distance_meters: strava_data["distance"],
+      elevation_meters: strava_data["total_elevation_gain"],
+      moving_seconds: strava_data["moving_time"]
+    }
+  end
+
+  def create_from_strava_data(competition_participant_id, strava_data) do
+    strava_attrs = strava_attrs_from_data(strava_data)
+    stored_strava_data = Map.drop(strava_data, @ignored_keys)
+
+    create_competition_activity(
+      Map.merge(strava_attrs, %{
+        competition_participant_id: competition_participant_id,
+        strava_data: stored_strava_data,
+        # TODO: make this calculate
+        include_in_competition: true
+      })
+    )
+  end
 
   @doc """
   Creates a competition_activity.

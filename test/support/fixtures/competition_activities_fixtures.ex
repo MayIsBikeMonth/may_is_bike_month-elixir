@@ -3,25 +3,20 @@ defmodule MayIsBikeMonth.CompetitionActivitiesFixtures do
   This module defines test helpers for creating
   entities via the `MayIsBikeMonth.CompetitionActivities` context.
   """
+  import MayIsBikeMonth.CompetitionParticipantsFixtures
 
   @doc """
   Generate a competition_activity.
   """
   def competition_activity_fixture(attrs \\ %{}) do
+    competition_participant_id =
+      attrs[:competition_participant_id] || competition_participant_fixture() |> Map.get(:id)
+
     {:ok, competition_activity} =
       attrs
       |> Enum.into(%{
-        display_name: "some display_name",
-        distance_meters: 42,
-        duration_seconds: 42,
-        elevation_meters: 42,
-        end_date: ~D[2023-06-30],
-        include_in_competition: true,
-        start_at: ~U[2023-06-30 22:57:00Z],
-        start_date: ~D[2023-06-30],
         strava_data: %{},
-        strava_id: "some strava_id",
-        timezone: "some timezone"
+        competition_participant_id: competition_participant_id
       })
       |> MayIsBikeMonth.CompetitionActivities.create_competition_activity()
 

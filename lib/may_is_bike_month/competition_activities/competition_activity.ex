@@ -4,9 +4,9 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
 
   schema "competition_activities" do
     field :display_name, :string
-    field :distance_meters, :integer
-    field :duration_seconds, :integer
-    field :elevation_meters, :integer
+    field :distance_meters, :float
+    field :moving_seconds, :integer
+    field :elevation_meters, :float
     field :end_date, :date
     field :include_in_competition, :boolean, default: false
     field :start_at, :utc_datetime
@@ -14,7 +14,9 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
     field :strava_data, :map
     field :strava_id, :string
     field :timezone, :string
-    field :competition_participant_id, :id
+
+    belongs_to :competition_participant,
+               MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
 
     timestamps()
   end
@@ -24,7 +26,7 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
     competition_activity
     |> cast(attrs, [
       :display_name,
-      :duration_seconds,
+      :moving_seconds,
       :start_at,
       :timezone,
       :start_date,
@@ -33,20 +35,9 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
       :strava_data,
       :include_in_competition,
       :distance_meters,
-      :elevation_meters
+      :elevation_meters,
+      :competition_participant_id
     ])
-    |> validate_required([
-      :display_name,
-      :duration_seconds,
-      :start_at,
-      :timezone,
-      :start_date,
-      :end_date,
-      :strava_id,
-      :strava_data,
-      :include_in_competition,
-      :distance_meters,
-      :elevation_meters
-    ])
+    |> validate_required([:competition_participant_id, :strava_id, :strava_data])
   end
 end

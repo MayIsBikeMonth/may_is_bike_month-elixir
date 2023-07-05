@@ -27,8 +27,7 @@
   "athlete_type": 0,
   "date_preference": "%m/%d/%Y",
   "measurement_preference": "feet",
-  "clubs":
-  [
+  "clubs": [
     {
       "id": 26409,
       "resource_state": 2,
@@ -37,8 +36,7 @@
       "profile": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/26409/632813/2/large.jpg",
       "cover_photo": null,
       "cover_photo_small": null,
-      "activity_types":
-      [
+      "activity_types": [
         "Handcycle",
         "EBikeRide",
         "VirtualRide",
@@ -46,8 +44,7 @@
         "Ride"
       ],
       "activity_types_icon": "sports_bike_normal",
-      "dimensions":
-      [
+      "dimensions": [
         "distance",
         "num_activities",
         "best_activities_distance",
@@ -77,8 +74,7 @@
       "profile": "avatar/club/large.png",
       "cover_photo": null,
       "cover_photo_small": null,
-      "activity_types":
-      [
+      "activity_types": [
         "Handcycle",
         "EBikeRide",
         "VirtualRide",
@@ -86,8 +82,7 @@
         "Ride"
       ],
       "activity_types_icon": "sports_bike_normal",
-      "dimensions":
-      [
+      "dimensions": [
         "distance",
         "num_activities",
         "best_activities_distance",
@@ -117,8 +112,7 @@
       "profile": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/278109/6159766/1/large.jpg",
       "cover_photo": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/278109/6159756/1/large.jpg",
       "cover_photo_small": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/278109/6159756/1/small.jpg",
-      "activity_types":
-      [
+      "activity_types": [
         "Handcycle",
         "EBikeRide",
         "VirtualRide",
@@ -126,8 +120,7 @@
         "Ride"
       ],
       "activity_types_icon": "sports_bike_normal",
-      "dimensions":
-      [
+      "dimensions": [
         "distance",
         "num_activities",
         "best_activities_distance",
@@ -157,8 +150,7 @@
       "profile": "avatar/club/large.png",
       "cover_photo": null,
       "cover_photo_small": null,
-      "activity_types":
-      [
+      "activity_types": [
         "Handcycle",
         "EBikeRide",
         "VirtualRide",
@@ -166,8 +158,7 @@
         "Ride"
       ],
       "activity_types_icon": "sports_bike_normal",
-      "dimensions":
-      [
+      "dimensions": [
         "distance",
         "num_activities",
         "best_activities_distance",
@@ -197,8 +188,7 @@
       "profile": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/434789/18905576/1/large.jpg",
       "cover_photo": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/434789/8583151/9/large.jpg",
       "cover_photo_small": "https://dgalywyr863hv.cloudfront.net/pictures/clubs/434789/8583151/9/small.jpg",
-      "activity_types":
-      [
+      "activity_types": [
         "Handcycle",
         "EBikeRide",
         "VirtualRide",
@@ -206,8 +196,7 @@
         "Ride"
       ],
       "activity_types_icon": "sports_bike_normal",
-      "dimensions":
-      [
+      "dimensions": [
         "distance",
         "num_activities",
         "best_activities_distance",
@@ -231,8 +220,7 @@
     }
   ],
   "ftp": 300,
-  "bikes":
-  [
+  "bikes": [
     {
       "id": "b6011644",
       "primary": false,
@@ -334,8 +322,7 @@
       "converted_distance": 85.4
     }
   ],
-  "shoes":
-  [],
+  "shoes": [],
   "is_winback_via_upload": false,
   "is_winback_via_view": false
 }
