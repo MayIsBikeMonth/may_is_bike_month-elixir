@@ -39,5 +39,21 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
       :competition_participant_id
     ])
     |> validate_required([:competition_participant_id, :strava_id, :strava_data])
+    |> with_end_date()
+  end
+
+  defp with_end_date(changeset) do
+    start_at = get_field(changeset, :start_at)
+    moving_seconds = get_field(changeset, :moving_seconds)
+    timezone = get_field(changeset, :timezone)
+
+    if start_at && moving_seconds && timezone do
+      dates =
+        MayIsBikeMonth.CompetitionActivities.activity_dates(start_at, timezone, moving_seconds)
+
+      put_change(changeset, :end_date, List.last(dates))
+    else
+      changeset
+    end
   end
 end

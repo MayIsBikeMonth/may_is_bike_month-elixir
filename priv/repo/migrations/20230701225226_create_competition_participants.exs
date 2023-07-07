@@ -7,6 +7,7 @@ defmodule MayIsBikeMonth.Repo.Migrations.CreateCompetitionParticipants do
       add(:include_in_competition, :boolean, default: false, null: false)
       add(:participant_id, references(:participants, on_delete: :nothing))
       add(:competition_id, references(:competitions, on_delete: :nothing))
+      add(:score_data, :map, default: %{}, null: false)
 
       timestamps()
     end

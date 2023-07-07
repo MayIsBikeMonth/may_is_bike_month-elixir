@@ -48,18 +48,20 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   """
   def get_competition_activity!(id), do: Repo.get!(CompetitionActivity, id)
 
+  def parse_strava_timezone(string) do
+    Regex.replace(~r/\([^\)]*\)/, string, "")
+    |> String.trim()
+  end
+
   def strava_attrs_from_data(strava_data) do
     start_at = Timex.parse!(strava_data["start_date"], "{RFC3339z}")
     start_date = DateTime.to_date(Timex.parse!(strava_data["start_date_local"], "{RFC3339z}"))
 
-    timezone =
-      Regex.replace(~r/\([^\)]*\)/, strava_data["timezone"], "")
-      |> String.trim()
+    timezone = parse_strava_timezone(strava_data["timezone"])
 
     %{
       strava_id: "#{strava_data["id"]}",
       start_date: start_date,
-      end_date: nil,
       timezone: timezone,
       start_at: start_at,
       display_name: strava_data["name"],
@@ -84,8 +86,8 @@ defmodule MayIsBikeMonth.CompetitionActivities do
 
     visible = Enum.member?(@included_strava_visibilities, strava_data["visibility"])
 
-    competition_participant.include_in_competition && visible && included_activity_type &&
-      included_distance
+    competition_participant.include_in_competition &&
+      visible && included_activity_type && included_distance
   end
 
   def create_from_strava_data(competition_participant, strava_data) do
@@ -100,6 +102,17 @@ defmodule MayIsBikeMonth.CompetitionActivities do
           calculated_include_in_competition?(competition_participant, strava_data)
       })
     )
+  end
+
+  def activity_dates(start_at, timezone, moving_seconds) do
+    local_start_at = MayIsBikeMonth.TimeFormatter.in_timezone(start_at, timezone)
+    end_at = local_start_at |> DateTime.add(moving_seconds)
+    activity_dates(local_start_at, end_at)
+  end
+
+  def activity_dates(start_at_or_date, end_at_or_date) do
+    Date.range(start_at_or_date, end_at_or_date)
+    |> Enum.to_list()
   end
 
   @doc """
@@ -165,5 +178,24 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   """
   def change_competition_activity(%CompetitionActivity{} = competition_activity, attrs \\ %{}) do
     CompetitionActivity.changeset(competition_activity, attrs)
+  end
+
+  @doc """
+  Returns a map of the data that is stored in the period for each competition_activity.
+
+  """
+  def score_data(%CompetitionActivity{} = competition_activity) do
+    dates =
+      activity_dates(competition_activity.start_date, competition_activity.end_date)
+      |> Enum.map(fn date -> "#{date}" end)
+
+    %{
+      "distance_meters" => competition_activity.distance_meters,
+      "elevation_meters" => competition_activity.elevation_meters,
+      "moving_seconds" => competition_activity.moving_seconds,
+      "strava_id" => competition_activity.strava_id,
+      "display_name" => competition_activity.display_name,
+      "dates" => dates
+    }
   end
 end

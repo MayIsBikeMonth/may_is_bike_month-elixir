@@ -14,17 +14,17 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       competition_participant: nil
     }
 
-    # test "list_competition_activities/0 returns all competition_activities" do
-    #   competition_activity = competition_activity_fixture()
-    #   assert CompetitionActivities.list_competition_activities() == [competition_activity]
-    # end
+    test "list_competition_activities/0 returns all competition_activities" do
+      competition_activity = competition_activity_fixture_from_strava_data()
+      assert CompetitionActivities.list_competition_activities() == [competition_activity]
+    end
 
-    # test "get_competition_activity!/1 returns the competition_activity with given id" do
-    #   competition_activity = competition_activity_fixture()
+    test "get_competition_activity!/1 returns the competition_activity with given id" do
+      competition_activity = competition_activity_fixture_from_strava_data()
 
-    #   assert CompetitionActivities.get_competition_activity!(competition_activity.id) ==
-    #            competition_activity
-    # end
+      assert CompetitionActivities.get_competition_activity!(competition_activity.id) ==
+               competition_activity
+    end
 
     test "create_competition_activity/1 with valid data creates a competition_activity" do
       strava_data = load_strava_activity_data_fixture()
@@ -33,7 +33,6 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       target_strava_attrs = %{
         strava_id: "9073105197",
         start_date: ~D[2023-05-14],
-        end_date: nil,
         timezone: "America/Los_Angeles",
         start_at: ~U[2023-05-14 19:08:57Z],
         display_name: "Craig road ride",
@@ -66,6 +65,41 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert Map.take(competition_activity, Map.keys(target_strava_attrs)) == target_strava_attrs
 
       assert competition_activity.include_in_competition == true
+      assert competition_activity.end_date == ~D[2023-05-14]
+    end
+
+    test "competition_activity_fixture creates valid competition_activities" do
+      competition_activity1 = competition_activity_fixture()
+      assert competition_activity1.id != nil
+
+      competition_participant_id = competition_activity1.competition_participant_id
+      # and it can create multiple, just passing in a different strava_id
+      competition_activity2 =
+        competition_activity_fixture(%{
+          strava_id: "69",
+          competition_participant_id: competition_participant_id
+        })
+
+      assert competition_activity2.competition_participant_id == competition_participant_id
+      assert competition_activity2.strava_id == "69"
+
+      competition_participant =
+        MayIsBikeMonth.CompetitionParticipants.get_competition_participant!(
+          competition_participant_id
+        )
+
+      competition_activity3 =
+        competition_activity_fixture(
+          strava_id: "7000",
+          competition_participant: competition_participant
+        )
+
+      assert competition_activity3.competition_participant_id == competition_participant_id
+    end
+
+    test "parse_strava_timezone/1 parses strava timezone strings" do
+      assert CompetitionActivities.parse_strava_timezone("(GMT-08:00) America/Los_Angeles") ==
+               "America/Los_Angeles"
     end
 
     test "create_competition_activity/1 with invalid data returns error changeset" do
@@ -74,7 +108,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     end
 
     test "update_competition_activity/2 with valid data updates the competition_activity" do
-      competition_activity = competition_activity_fixture()
+      competition_activity = competition_activity_fixture_from_strava_data()
 
       update_attrs = %{
         display_name: "some updated display_name",
@@ -92,7 +126,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     end
 
     test "delete_competition_activity/1 deletes the competition_activity" do
-      competition_activity = competition_activity_fixture()
+      competition_activity = competition_activity_fixture_from_strava_data()
 
       assert {:ok, %CompetitionActivity{}} =
                CompetitionActivities.delete_competition_activity(competition_activity)
@@ -103,7 +137,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     end
 
     test "change_competition_activity/1 returns a competition_activity changeset" do
-      competition_activity = competition_activity_fixture()
+      competition_activity = competition_activity_fixture_from_strava_data()
 
       assert %Ecto.Changeset{} =
                CompetitionActivities.change_competition_activity(competition_activity)
@@ -168,6 +202,42 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                "visibility" => "everyone",
                "distance" => 2000
              }) == false
+    end
+
+    test "activity_dates/3 returns single date for a short ride" do
+      short_ride_dates =
+        CompetitionActivities.activity_dates(
+          ~U[2023-05-14 03:08:57Z],
+          "America/Los_Angeles",
+          8280
+        )
+
+      assert short_ride_dates == [~D[2023-05-13]]
+    end
+
+    test "activity_dates/3 returns list of dates for a long ride" do
+      short_ride_dates =
+        CompetitionActivities.activity_dates(
+          ~U[2023-05-28 06:08:57Z],
+          "America/Los_Angeles",
+          129_600
+        )
+
+      assert short_ride_dates == [~D[2023-05-27], ~D[2023-05-28], ~D[2023-05-29]]
+    end
+
+    test "competition_participant_period_data/1" do
+      competition_activity = competition_activity_fixture_from_strava_data()
+
+      assert CompetitionActivities.score_data(competition_activity) == %{
+               "distance_meters" => 80961.7,
+               "elevation_meters" => 917.0,
+               "moving_seconds" => 13530,
+               "strava_id" => "9073105197",
+               "display_name" => "Craig road ride",
+               "dates" => ["2023-05-14"]
+               # "starts_in_previous_period" => false,
+             }
     end
   end
 end
