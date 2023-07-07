@@ -29,7 +29,47 @@ defmodule MayIsBikeMonth.CompetitionActivities do
 
   """
   def list_competition_activities do
-    Repo.all(CompetitionActivity)
+    from(CompetitionActivity)
+    |> order_by([ca], desc: ca.start_at)
+    |> Repo.all()
+  end
+
+  @doc """
+    Example filter:
+    %{competition_participant_id: 1, start_date: ~D[2023-05-22], end_date: ~D[2023-05-28]}
+  """
+  def list_competition_activities(filter) when is_map(filter) do
+    filter_with_nils =
+      %{competition_participant_id: nil, start_date: nil, end_date: nil}
+      |> Map.merge(filter)
+
+    from(CompetitionActivity)
+    # NOTE: in_period must come first because it includes or_where
+    |> in_period(filter_with_nils)
+    |> for_competition_participant_id(filter_with_nils)
+    |> order_by([ca], desc: ca.start_at)
+    |> Repo.all()
+  end
+
+  defp for_competition_participant_id(query, %{competition_participant_id: nil}), do: query
+
+  defp for_competition_participant_id(query, %{
+         competition_participant_id: competition_participant_id
+       }) do
+    query
+    |> where(competition_participant_id: ^competition_participant_id)
+  end
+
+  defp in_period(query, %{start_date: nil, end_date: nil}), do: query
+
+  defp in_period(query, %{start_date: start_date, end_date: end_date}) do
+    date_range =
+      Date.range(start_date, end_date)
+      |> Enum.to_list()
+
+    from ca in query,
+      where: ca.start_date in ^date_range,
+      or_where: ca.end_date in ^date_range
   end
 
   @doc """

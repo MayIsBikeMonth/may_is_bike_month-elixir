@@ -14,9 +14,89 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       competition_participant: nil
     }
 
+    # TODO: make this not as hacky
+    def pluck_ids(ecto_list) do
+      ecto_list
+      |> Enum.map(fn obj -> obj.id end)
+    end
+
     test "list_competition_activities/0 returns all competition_activities" do
       competition_activity = competition_activity_fixture_from_strava_data()
       assert CompetitionActivities.list_competition_activities() == [competition_activity]
+    end
+
+    test "list_competition_activities/2 filters by competition_participant_id and period" do
+      competition_activity1 = competition_activity_fixture(start_at: ~U[2023-05-24 14:08:57Z])
+      assert competition_activity1.id != nil
+      participant = MayIsBikeMonth.ParticipantsFixtures.participant_fixture(strava_id: "123")
+      competition_participant = competition_participant_fixture(participant_id: participant.id)
+
+      competition_activity2 =
+        competition_activity_fixture(%{
+          strava_id: "69",
+          start_at: ~U[2023-05-28 06:08:57Z],
+          moving_seconds: 129_600,
+          competition_participant_id: competition_participant.id
+        })
+
+      assert competition_activity2.competition_participant_id == competition_participant.id
+      assert competition_activity2.strava_id == "69"
+      assert competition_activity2.start_date == ~D[2023-05-27]
+      assert competition_activity2.end_date == ~D[2023-05-29]
+
+      competition_activity3 =
+        competition_activity_fixture(
+          strava_id: "7000",
+          competition_participant: competition_participant,
+          start_at: ~U[2023-05-23 19:08:57Z]
+        )
+
+      assert competition_activity3.competition_participant_id == competition_participant.id
+      assert competition_activity3.start_date == ~D[2023-05-23]
+      assert competition_activity3.end_date == ~D[2023-05-23]
+
+      competition_activity4 =
+        competition_activity_fixture(
+          start_at: ~U[2023-05-30 14:08:57Z],
+          strava_id: "42134",
+          competition_participant: competition_participant
+        )
+
+      assert competition_activity4.start_date == ~D[2023-05-30]
+
+      # Filtering by period
+      assert pluck_ids(
+               CompetitionActivities.list_competition_activities(%{
+                 start_date: ~D[2023-05-22],
+                 end_date: ~D[2023-05-28]
+               })
+             ) ==
+               [competition_activity2.id, competition_activity1.id, competition_activity3.id]
+
+      # Filtering by competition_participant
+      assert pluck_ids(
+               CompetitionActivities.list_competition_activities(%{
+                 competition_participant_id: competition_participant.id
+               })
+             ) == [competition_activity4.id, competition_activity2.id, competition_activity3.id]
+
+      # Filtering by competition_participant and period
+      assert pluck_ids(
+               CompetitionActivities.list_competition_activities(%{
+                 competition_participant_id: competition_participant.id,
+                 start_date: ~D[2023-05-22],
+                 end_date: ~D[2023-05-28]
+               })
+             ) == [competition_activity2.id, competition_activity3.id]
+
+      # Filtering by next period - includes the activity that crosses between periods
+      assert pluck_ids(
+               CompetitionActivities.list_competition_activities(%{
+                 start_date: ~D[2023-05-29],
+                 end_date: ~D[2023-05-31]
+               })
+             ) ==
+               [competition_activity4.id, competition_activity2.id]
     end
 
     test "get_competition_activity!/1 returns the competition_activity with given id" do
@@ -66,35 +146,6 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
 
       assert competition_activity.include_in_competition == true
       assert competition_activity.end_date == ~D[2023-05-14]
-    end
-
-    test "competition_activity_fixture creates valid competition_activities" do
-      competition_activity1 = competition_activity_fixture()
-      assert competition_activity1.id != nil
-
-      competition_participant_id = competition_activity1.competition_participant_id
-      # and it can create multiple, just passing in a different strava_id
-      competition_activity2 =
-        competition_activity_fixture(%{
-          strava_id: "69",
-          competition_participant_id: competition_participant_id
-        })
-
-      assert competition_activity2.competition_participant_id == competition_participant_id
-      assert competition_activity2.strava_id == "69"
-
-      competition_participant =
-        MayIsBikeMonth.CompetitionParticipants.get_competition_participant!(
-          competition_participant_id
-        )
-
-      competition_activity3 =
-        competition_activity_fixture(
-          strava_id: "7000",
-          competition_participant: competition_participant
-        )
-
-      assert competition_activity3.competition_participant_id == competition_participant_id
     end
 
     test "parse_strava_timezone/1 parses strava timezone strings" do
