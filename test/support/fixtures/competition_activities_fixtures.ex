@@ -5,20 +5,25 @@ defmodule MayIsBikeMonth.CompetitionActivitiesFixtures do
   """
   import MayIsBikeMonth.CompetitionParticipantsFixtures
 
+  def load_strava_activity_data_fixture() do
+    Path.expand("./strava_activity.json", __DIR__)
+    |> File.read!()
+    |> Jason.decode!()
+  end
+
   @doc """
   Generate a competition_activity.
   """
   def competition_activity_fixture(attrs \\ %{}) do
-    competition_participant_id =
-      attrs[:competition_participant_id] || competition_participant_fixture() |> Map.get(:id)
+    competition_participant = attrs[:competition_participant] || competition_participant_fixture()
+
+    strava_data = attrs[:strava_data] || load_strava_activity_data_fixture()
 
     {:ok, competition_activity} =
-      attrs
-      |> Enum.into(%{
-        strava_data: %{},
-        competition_participant_id: competition_participant_id
-      })
-      |> MayIsBikeMonth.CompetitionActivities.create_competition_activity()
+      MayIsBikeMonth.CompetitionActivities.create_from_strava_data(
+        competition_participant,
+        strava_data
+      )
 
     competition_activity
   end

@@ -27,6 +27,8 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       assert CompetitionParticipants.get_competition_participant!(competition_participant.id) ==
                competition_participant
+
+      assert competition_participant.included_activity_types == nil
     end
 
     test "competition_fixture uses passed in competition and participant" do
@@ -113,6 +115,43 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       assert %Ecto.Changeset{} =
                CompetitionParticipants.change_competition_participant(competition_participant)
+    end
+
+    test "included_activity_types/1 returns the default included_activity_types" do
+      # Make this potentially configurable in the future - so someone who is injured or something can participate
+      # For now, it's just a stub'
+      competition_participant = competition_participant_fixture()
+
+      assert CompetitionParticipants.included_activity_types(competition_participant) == [
+               "Ride",
+               "Velomobile",
+               "Handcycle"
+             ]
+    end
+
+    test "included_activity_type?/2 returns true for valid types" do
+      competition_participant = competition_participant_fixture()
+
+      assert CompetitionParticipants.included_activity_type?(competition_participant, "Ride")
+
+      assert CompetitionParticipants.included_activity_type?(
+               competition_participant,
+               "Velomobile"
+             )
+
+      assert CompetitionParticipants.included_activity_type?(competition_participant, "Handcycle")
+
+      assert CompetitionParticipants.included_activity_type?(
+               competition_participant,
+               "VirtualRide"
+             ) ==
+               false
+    end
+
+    test "included_distance?/2 returns true for valid distances" do
+      competition_participant = competition_participant_fixture()
+
+      assert CompetitionParticipants.included_distance?(competition_participant, "Ride")
     end
   end
 end

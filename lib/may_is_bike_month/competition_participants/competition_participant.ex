@@ -7,7 +7,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
     field :score, :float, default: 0.0
     belongs_to :participant, MayIsBikeMonth.Participants.Participant
     belongs_to :competition, MayIsBikeMonth.Competitions.Competition
-    field :valid_activity_types, :map, virtual: true
+    field :included_activity_types, :map, virtual: true
 
     timestamps()
   end

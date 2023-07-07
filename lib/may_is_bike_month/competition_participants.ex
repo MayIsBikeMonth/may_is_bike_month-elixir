@@ -3,6 +3,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   The CompetitionParticipants context.
   """
 
+  @default_included_activity_types ["Ride", "Velomobile", "Handcycle"]
+  # 2 miles
+  @minimum_distance 3219
+
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
 
@@ -23,13 +27,12 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   end
 
   def for_competition(competition) do
-    query =
-      from(cp in CompetitionParticipant,
-        where: cp.competition_id == ^competition.id,
-        order_by: [desc: cp.score]
-      )
-      |> Repo.all()
-      |> Repo.preload(:participant)
+    from(cp in CompetitionParticipant,
+      where: cp.competition_id == ^competition.id,
+      order_by: [desc: cp.score]
+    )
+    |> Repo.all()
+    |> Repo.preload(:participant)
   end
 
   @doc """
@@ -125,5 +128,20 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
         attrs \\ %{}
       ) do
     CompetitionParticipant.changeset(competition_participant, attrs)
+  end
+
+  def included_activity_types(%CompetitionParticipant{} = competition_participant) do
+    competition_participant.included_activity_types || @default_included_activity_types
+  end
+
+  def included_activity_type?(%CompetitionParticipant{} = competition_participant, activity_type) do
+    Enum.member?(
+      included_activity_types(competition_participant),
+      activity_type
+    )
+  end
+
+  def included_distance?(%CompetitionParticipant{} = _competition_participant, distance_meters) do
+    distance_meters && distance_meters >= @minimum_distance
   end
 end

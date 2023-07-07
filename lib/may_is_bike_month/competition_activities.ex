@@ -3,7 +3,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   The CompetitionActivities context.
   """
 
-  @ignored_keys [
+  @ignored_strava_keys [
     "map",
     "segment_efforts",
     "splits_metric",
@@ -11,6 +11,8 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     "laps",
     "stats_visibility"
   ]
+
+  @included_strava_visibilities ["everyone", "followers_only"]
 
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
@@ -67,16 +69,35 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     }
   end
 
-  def create_from_strava_data(competition_participant_id, strava_data) do
+  def calculated_include_in_competition?(competition_participant, strava_data) do
+    included_activity_type =
+      MayIsBikeMonth.CompetitionParticipants.included_activity_type?(
+        competition_participant,
+        strava_data["type"]
+      )
+
+    included_distance =
+      MayIsBikeMonth.CompetitionParticipants.included_distance?(
+        competition_participant,
+        strava_data["distance"]
+      )
+
+    visible = Enum.member?(@included_strava_visibilities, strava_data["visibility"])
+
+    competition_participant.include_in_competition && visible && included_activity_type &&
+      included_distance
+  end
+
+  def create_from_strava_data(competition_participant, strava_data) do
     strava_attrs = strava_attrs_from_data(strava_data)
-    stored_strava_data = Map.drop(strava_data, @ignored_keys)
+    stored_strava_data = Map.drop(strava_data, @ignored_strava_keys)
 
     create_competition_activity(
       Map.merge(strava_attrs, %{
-        competition_participant_id: competition_participant_id,
+        competition_participant_id: competition_participant.id,
         strava_data: stored_strava_data,
-        # TODO: make this calculate
-        include_in_competition: true
+        include_in_competition:
+          calculated_include_in_competition?(competition_participant, strava_data)
       })
     )
   end

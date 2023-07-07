@@ -9,17 +9,10 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     import MayIsBikeMonth.CompetitionActivitiesFixtures
     import MayIsBikeMonth.CompetitionParticipantsFixtures
 
-    # @invalid_attrs %{
-    #   strava_id: nil,
-    #   competition_participant: nil
-    # }
-
-    def get_strava_data() do
-      activity_path =
-        Path.expand("../support/fixtures/strava_activity.json", __DIR__)
-        |> File.read!()
-        |> Jason.decode!()
-    end
+    @invalid_attrs %{
+      strava_id: nil,
+      competition_participant: nil
+    }
 
     # test "list_competition_activities/0 returns all competition_activities" do
     #   competition_activity = competition_activity_fixture()
@@ -34,13 +27,8 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     # end
 
     test "create_competition_activity/1 with valid data creates a competition_activity" do
-      strava_data = get_strava_data()
+      strava_data = load_strava_activity_data_fixture()
       competition_participant = competition_participant_fixture()
-
-      valid_attrs = %{
-        strava_data: strava_data,
-        competition_participant_id: competition_participant.id
-      }
 
       target_strava_attrs = %{
         strava_id: "9073105197",
@@ -58,7 +46,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
 
       assert {:ok, %CompetitionActivity{} = competition_activity} =
                CompetitionActivities.create_from_strava_data(
-                 competition_participant.id,
+                 competition_participant,
                  strava_data
                )
 
@@ -80,58 +68,106 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert competition_activity.include_in_competition == true
     end
 
-    # test "create_competition_activity/1 with invalid data returns error changeset" do
-    #   assert {:error, %Ecto.Changeset{}} =
-    #            CompetitionActivities.create_competition_activity(@invalid_attrs)
-    # end
+    test "create_competition_activity/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} =
+               CompetitionActivities.create_competition_activity(@invalid_attrs)
+    end
 
-    #   test "update_competition_activity/2 with valid data updates the competition_activity" do
-    #     competition_activity = competition_activity_fixture()
+    test "update_competition_activity/2 with valid data updates the competition_activity" do
+      competition_activity = competition_activity_fixture()
 
-    #     update_attrs = %{
-    #       display_name: "some updated display_name",
-    #     }
+      update_attrs = %{
+        display_name: "some updated display_name",
+        include_in_competition: false
+      }
 
-    #     assert {:ok, %CompetitionActivity{} = competition_activity} =
-    #              CompetitionActivities.update_competition_activity(
-    #                competition_activity,
-    #                update_attrs
-    #              )
+      assert {:ok, %CompetitionActivity{} = competition_activity} =
+               CompetitionActivities.update_competition_activity(
+                 competition_activity,
+                 update_attrs
+               )
 
-    #     assert competition_activity.strava_data == %{}
-    #     assert competition_activity.strava_id == "some updated strava_id"
-    #     assert competition_activity.timezone == "some updated timezone"
-    #   end
+      assert competition_activity.display_name == "some updated display_name"
+      assert competition_activity.include_in_competition == false
+    end
 
-    #   test "update_competition_activity/2 with invalid data returns error changeset" do
-    #     competition_activity = competition_activity_fixture()
+    test "delete_competition_activity/1 deletes the competition_activity" do
+      competition_activity = competition_activity_fixture()
 
-    #     assert {:error, %Ecto.Changeset{}} =
-    #              CompetitionActivities.update_competition_activity(
-    #                competition_activity,
-    #                @invalid_attrs
-    #              )
+      assert {:ok, %CompetitionActivity{}} =
+               CompetitionActivities.delete_competition_activity(competition_activity)
 
-    #     assert competition_activity ==
-    #              CompetitionActivities.get_competition_activity!(competition_activity.id)
-    #   end
+      assert_raise Ecto.NoResultsError, fn ->
+        CompetitionActivities.get_competition_activity!(competition_activity.id)
+      end
+    end
 
-    #   test "delete_competition_activity/1 deletes the competition_activity" do
-    #     competition_activity = competition_activity_fixture()
+    test "change_competition_activity/1 returns a competition_activity changeset" do
+      competition_activity = competition_activity_fixture()
 
-    #     assert {:ok, %CompetitionActivity{}} =
-    #              CompetitionActivities.delete_competition_activity(competition_activity)
+      assert %Ecto.Changeset{} =
+               CompetitionActivities.change_competition_activity(competition_activity)
+    end
 
-    #     assert_raise Ecto.NoResultsError, fn ->
-    #       CompetitionActivities.get_competition_activity!(competition_activity.id)
-    #     end
-    #   end
+    test "calculated_include_in_competition?/2 returns true for valid types" do
+      competition_participant = competition_participant_fixture()
+      assert competition_participant.include_in_competition == true
 
-    #   test "change_competition_activity/1 returns a competition_activity changeset" do
-    #     competition_activity = competition_activity_fixture()
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "everyone",
+               "distance" => 4000
+             }) == true
 
-    #     assert %Ecto.Changeset{} =
-    #              CompetitionActivities.change_competition_activity(competition_activity)
-    #   end
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Velomobile",
+               "visibility" => "everyone",
+               "distance" => 4000
+             }) == true
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "VirtualRide",
+               "visibility" => "everyone",
+               "distance" => 4000
+             }) == false
+    end
+
+    test "calculated_include_in_competition?/2 returns true for valid visibility" do
+      competition_participant = competition_participant_fixture()
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "everyone",
+               "distance" => 4000
+             }) == true
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "followers_only",
+               "distance" => 4000
+             }) == true
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "only_me",
+               "distance" => 4000
+             }) == false
+    end
+
+    test "calculated_include_in_competition?/2 returns true for valid distances" do
+      competition_participant = competition_participant_fixture()
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "everyone",
+               "distance" => 3300
+             }) == true
+
+      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
+               "type" => "Ride",
+               "visibility" => "everyone",
+               "distance" => 2000
+             }) == false
+    end
   end
 end
