@@ -15,8 +15,12 @@
             ) %>
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 pb-1 border-r">Feet</div>
-            <div class="px-1 pb-1 border-r">Miles</div>
+            <div class="px-1 pb-1 border-r">
+              Elevation
+            </div>
+            <div class="px-1 pb-1 border-r">
+              Distance
+            </div>
             <div class="px-1 pb-1">Days</div>
           </div>
         </th>
@@ -25,8 +29,12 @@
             Total
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 pb-1 border-r">Feet</div>
-            <div class="px-1 pb-1 border-r">Miles</div>
+            <div class="px-1 pb-1 border-r">
+              Elevation
+            </div>
+            <div class="px-1 pb-1 border-r">
+              Distance
+            </div>
             <div class="px-1 pb-1">Days</div>
           </div>
         </th>
@@ -50,10 +58,10 @@
         >
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1">
-              Feet <% # period.start_date %>
+              <span class="unit-elevation">m</span> <% # period.start_date %>
             </div>
             <div class="px-1 border-r py-1">
-              Miles
+              <span class="unit-distance">Km</span>
             </div>
             <div class="px-1 py-1">
               Days
@@ -63,10 +71,10 @@
         <td scope="col" class="text-black font-bold">
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1">
-              Feet
+              <span class="unit-elevation">m</span>
             </div>
             <div class="px-1 border-r py-1">
-              Miles
+              <span class="unit-distance">Km</span>
             </div>
             <div class="px-1 py-1">
               Days
@@ -91,4 +99,15 @@
       </tr>
     </tbody>
   </table>
+</div>
+
+<div class="mt-4">
+  <h4 class="text-lg">
+    <span class="units-are-metric">
+      Distance and elevation are in metric. <a href="#">Switch to imperial</a>
+    </span>
+    <span class="units-are-imperial hidden">
+      Distance and elevation are in imperial. <a href="#">Switch to metric</a>
+    </span>
+  </h4>
 </div>
