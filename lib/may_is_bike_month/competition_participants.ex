@@ -147,6 +147,13 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
+  def update_calculated_score(%CompetitionParticipant{} = competition_participant) do
+    score_data = calculate_scoring_data(competition_participant)
+
+    update_competition_participant(competition_participant, %{score_data: score_data})
+  end
+
+  # TODO: should be private except tests
   def calculate_scoring_data(%CompetitionParticipant{} = competition_participant) do
     competition =
       MayIsBikeMonth.Competitions.get_competition!(competition_participant.competition_id)
@@ -154,6 +161,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     calculate_scoring_data(competition_participant, competition)
   end
 
+  # TODO: should be private except tests
   def calculate_scoring_data(%CompetitionParticipant{} = competition_participant, competition) do
     calculate_scoring_periods(competition_participant, competition)
     |> scoring_periods_with_scoring_data()
@@ -164,8 +172,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     score_data = %{
       "dates" =>
         Enum.reduce(scoring_periods, MapSet.new([]), fn period, acc ->
-          MapSet.union(acc, period["dates"])
-        end),
+          MapSet.union(acc, MapSet.new(period["dates"]))
+        end)
+        |> MapSet.to_list(),
       "distance_meters" =>
         Enum.reduce(scoring_periods, 0, fn period, acc -> period["distance_meters"] + acc end),
       "elevation_meters" =>
@@ -188,7 +197,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   end
 
   def calculate_score(dates, distance_meters) do
-    1 - 1 / distance_meters + MapSet.size(dates)
+    1 - 1 / distance_meters + length(dates)
   end
 
   # TODO: should be private except tests
@@ -219,8 +228,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     %{
       "dates" =>
         Enum.reduce(activities_data, MapSet.new([]), fn a_data, acc ->
-          MapSet.union(acc, a_data["dates"])
-        end),
+          MapSet.union(acc, MapSet.new(a_data["dates"]))
+        end)
+        |> MapSet.to_list(),
       "distance_meters" =>
         Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["distance_meters"] + acc end),
       "elevation_meters" =>

@@ -24,5 +24,12 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
       :score_data
     ])
     |> validate_required([:competition_id, :participant_id])
+    |> with_score()
+  end
+
+  defp with_score(changeset) do
+    score_data = get_field(changeset, :score_data)
+    score = (score_data && score_data["score"]) || 0.0
+    put_change(changeset, :score, score)
   end
 end

@@ -248,7 +248,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     starts_in_previous_period = Date.compare(competition_activity.start_date, start_date) == :lt
 
     Map.merge(data, %{
-      "dates" => MapSet.intersection(data["dates"], period),
+      "dates" => MapSet.intersection(data["dates"], period) |> MapSet.to_list(),
       "distance_meters" => if(starts_in_previous_period, do: 0, else: data["distance_meters"]),
       "elevation_meters" => if(starts_in_previous_period, do: 0, else: data["elevation_meters"]),
       "starts_in_previous_period" => starts_in_previous_period

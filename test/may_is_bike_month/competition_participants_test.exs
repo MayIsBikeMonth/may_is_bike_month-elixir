@@ -171,7 +171,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert competition_activity.end_date == ~D[2023-05-29]
 
       empty_period_data = %{
-        "dates" => MapSet.new([]),
+        "dates" => [],
         "distance_meters" => 0,
         "elevation_meters" => 0,
         "activities" => []
@@ -192,7 +192,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
         "elevation_meters" => 696.9,
         "display_name" => "Some bike ride",
         "strava_id" => "3",
-        "dates" => MapSet.new([~D[2023-05-27], ~D[2023-05-28]]),
+        "dates" => [~D[2023-05-27], ~D[2023-05-28]],
         "starts_in_previous_period" => false
       }
 
@@ -207,7 +207,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
           "distance_meters" => 0,
           "elevation_meters" => 0,
           "starts_in_previous_period" => true,
-          "dates" => MapSet.new([~D[2023-05-29]])
+          "dates" => [~D[2023-05-29]]
         })
 
       assert CompetitionParticipants.period_activities_data(
@@ -268,7 +268,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       period5 = Enum.fetch!(scoring_periods, 4)
 
       assert Map.drop(period5, ["activities"]) == %{
-               "dates" => MapSet.new([~D[2023-05-29]]),
+               "dates" => [~D[2023-05-29]],
                "distance_meters" => 100_069.9,
                "elevation_meters" => 696.9
              }
@@ -280,7 +280,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                  "starts_in_previous_period" => true,
                  "display_name" => "Some bike ride",
                  "strava_id" => "2",
-                 "dates" => MapSet.new([~D[2023-05-29]])
+                 "dates" => [~D[2023-05-29]]
                },
                %{
                  "distance_meters" => 100_069.9,
@@ -288,7 +288,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                  "starts_in_previous_period" => false,
                  "display_name" => "Some bike ride",
                  "strava_id" => "4",
-                 "dates" => MapSet.new([~D[2023-05-29]])
+                 "dates" => [~D[2023-05-29]]
                }
              ]
 
@@ -317,11 +317,19 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert scoring_data["elevation_meters"] == 2787.6
 
       assert CompetitionParticipants.calculate_score(
-               scoring_data["dates"],
+               Enum.to_list(scoring_data["dates"]),
                scoring_data["distance_meters"]
              ) == 5.99999750174628
 
       assert scoring_data["score"] == 5.99999750174628
+
+      CompetitionParticipants.update_calculated_score(competition_participant)
+
+      competition_participant =
+        CompetitionParticipants.get_competition_participant!(competition_participant.id)
+
+      assert competition_participant.score == 5.99999750174628
+      assert Jason.encode!(competition_participant.score_data) == Jason.encode!(scoring_data)
     end
   end
 end
