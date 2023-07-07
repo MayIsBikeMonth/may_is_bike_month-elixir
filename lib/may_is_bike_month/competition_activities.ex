@@ -40,24 +40,25 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   """
   def list_competition_activities(filter) when is_map(filter) do
     filter_with_nils =
-      %{competition_participant_id: nil, start_date: nil, end_date: nil}
+      %{
+        competition_participant_id: nil,
+        start_date: nil,
+        end_date: nil,
+        include_in_competition: nil,
+        order_direction: :desc
+      }
       |> Map.merge(filter)
+
+    order_by =
+      if(filter_with_nils.order_direction == :desc, do: [desc: :start_at], else: [asc: :start_at])
 
     from(CompetitionActivity)
     # NOTE: in_period must come first because it includes or_where
     |> in_period(filter_with_nils)
+    |> for_include_in_competition(filter_with_nils)
     |> for_competition_participant_id(filter_with_nils)
-    |> order_by([ca], desc: ca.start_at)
+    |> order_by(^order_by)
     |> Repo.all()
-  end
-
-  defp for_competition_participant_id(query, %{competition_participant_id: nil}), do: query
-
-  defp for_competition_participant_id(query, %{
-         competition_participant_id: competition_participant_id
-       }) do
-    query
-    |> where(competition_participant_id: ^competition_participant_id)
   end
 
   defp in_period(query, %{start_date: nil, end_date: nil}), do: query
@@ -70,6 +71,24 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     from ca in query,
       where: ca.start_date in ^date_range,
       or_where: ca.end_date in ^date_range
+  end
+
+  defp for_include_in_competition(query, %{include_in_competition: nil}), do: query
+
+  defp for_include_in_competition(query, %{
+         include_in_competition: include_in_competition
+       }) do
+    query
+    |> where(include_in_competition: ^include_in_competition)
+  end
+
+  defp for_competition_participant_id(query, %{competition_participant_id: nil}), do: query
+
+  defp for_competition_participant_id(query, %{
+         competition_participant_id: competition_participant_id
+       }) do
+    query
+    |> where(competition_participant_id: ^competition_participant_id)
   end
 
   @doc """
@@ -224,15 +243,27 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   Returns a map of the data that is stored in the period for each competition_activity.
 
   """
+  def period_score_data(%CompetitionActivity{} = competition_activity, start_date, period) do
+    data = score_data(competition_activity)
+    starts_in_previous_period = Date.compare(competition_activity.start_date, start_date) == :lt
+
+    Map.merge(data, %{
+      "dates" => MapSet.intersection(data["dates"], period),
+      "distance_meters" => if(starts_in_previous_period, do: 0, else: data["distance_meters"]),
+      "elevation_meters" => if(starts_in_previous_period, do: 0, else: data["elevation_meters"]),
+      "starts_in_previous_period" => starts_in_previous_period
+    })
+  end
+
+  # TODO: Make this private. It's only public for testing.
   def score_data(%CompetitionActivity{} = competition_activity) do
     dates =
       activity_dates(competition_activity.start_date, competition_activity.end_date)
-      |> Enum.map(fn date -> "#{date}" end)
+      |> MapSet.new()
 
     %{
       "distance_meters" => competition_activity.distance_meters,
       "elevation_meters" => competition_activity.elevation_meters,
-      "moving_seconds" => competition_activity.moving_seconds,
       "strava_id" => competition_activity.strava_id,
       "display_name" => competition_activity.display_name,
       "dates" => dates

@@ -22,7 +22,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   """
   def list_competition_participants do
-    Repo.all(CompetitionParticipant)
+    from(CompetitionParticipant)
+    |> order_by([cp], desc: cp.score)
+    |> Repo.all()
     |> Repo.preload(:participant)
   end
 
@@ -143,5 +145,87 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   def included_distance?(%CompetitionParticipant{} = _competition_participant, distance_meters) do
     distance_meters && distance_meters >= @minimum_distance
+  end
+
+  def calculate_scoring_data(%CompetitionParticipant{} = competition_participant) do
+    competition =
+      MayIsBikeMonth.Competitions.get_competition!(competition_participant.competition_id)
+
+    calculate_scoring_data(competition_participant, competition)
+  end
+
+  def calculate_scoring_data(%CompetitionParticipant{} = competition_participant, competition) do
+    calculate_scoring_periods(competition_participant, competition)
+    |> scoring_periods_with_scoring_data()
+  end
+
+  # TODO: combine with scoring_data_for_period
+  defp scoring_periods_with_scoring_data(scoring_periods) do
+    score_data = %{
+      "dates" =>
+        Enum.reduce(scoring_periods, MapSet.new([]), fn period, acc ->
+          MapSet.union(acc, period["dates"])
+        end),
+      "distance_meters" =>
+        Enum.reduce(scoring_periods, 0, fn period, acc -> period["distance_meters"] + acc end),
+      "elevation_meters" =>
+        Enum.reduce(scoring_periods, 0, fn period, acc -> period["elevation_meters"] + acc end)
+    }
+
+    Map.merge(score_data, %{
+      "periods" => scoring_periods,
+      "score" => calculate_score(score_data["dates"], score_data["distance_meters"])
+    })
+  end
+
+  # TODO: should be private except tests
+  def calculate_scoring_periods(%CompetitionParticipant{} = competition_participant, competition) do
+    competition.periods
+    |> Enum.map(fn period ->
+      period_activities_data(competition_participant, period.start_date, period.end_date)
+      |> scoring_data_for_period()
+    end)
+  end
+
+  def calculate_score(dates, distance_meters) do
+    1 - 1 / distance_meters + MapSet.size(dates)
+  end
+
+  # TODO: should be private except tests
+  def period_activities_data(
+        %CompetitionParticipant{} = competition_participant,
+        start_date,
+        end_date
+      ) do
+    period_dates =
+      Date.range(start_date, end_date)
+      |> MapSet.new()
+
+    MayIsBikeMonth.CompetitionActivities.list_competition_activities(%{
+      competition_participant_id: competition_participant.id,
+      include_in_competition: true,
+      start_date: start_date,
+      end_date: end_date,
+      # Because, when rendering in the table, we want the oldest activity at the top
+      order_direction: :asc
+    })
+    |> Enum.map(fn actv ->
+      MayIsBikeMonth.CompetitionActivities.period_score_data(actv, start_date, period_dates)
+    end)
+  end
+
+  # TODO: should be private except tests
+  def scoring_data_for_period(activities_data) do
+    %{
+      "dates" =>
+        Enum.reduce(activities_data, MapSet.new([]), fn a_data, acc ->
+          MapSet.union(acc, a_data["dates"])
+        end),
+      "distance_meters" =>
+        Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["distance_meters"] + acc end),
+      "elevation_meters" =>
+        Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["elevation_meters"] + acc end),
+      "activities" => activities_data
+    }
   end
 end

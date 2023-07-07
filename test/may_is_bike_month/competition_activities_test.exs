@@ -36,7 +36,8 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
           strava_id: "69",
           start_at: ~U[2023-05-28 06:08:57Z],
           moving_seconds: 129_600,
-          competition_participant_id: competition_participant.id
+          competition_participant_id: competition_participant.id,
+          include_in_competition: false
         })
 
       assert competition_activity2.competition_participant_id == competition_participant.id
@@ -97,6 +98,16 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                })
              ) ==
                [competition_activity4.id, competition_activity2.id]
+
+      assert pluck_ids(
+               CompetitionActivities.list_competition_activities(%{
+                 start_date: ~D[2023-05-29],
+                 end_date: ~D[2023-05-31],
+                 competition_participant_id: competition_participant.id,
+                 include_in_competition: true
+               })
+             ) ==
+               [competition_activity4.id]
     end
 
     test "get_competition_activity!/1 returns the competition_activity with given id" do
@@ -283,11 +294,9 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert CompetitionActivities.score_data(competition_activity) == %{
                "distance_meters" => 80961.7,
                "elevation_meters" => 917.0,
-               "moving_seconds" => 13530,
                "strava_id" => "9073105197",
                "display_name" => "Craig road ride",
-               "dates" => ["2023-05-14"]
-               # "starts_in_previous_period" => false,
+               "dates" => MapSet.new([~D[2023-05-14]])
              }
     end
   end

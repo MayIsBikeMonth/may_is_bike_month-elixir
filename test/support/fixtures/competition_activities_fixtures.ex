@@ -34,7 +34,8 @@ defmodule MayIsBikeMonth.CompetitionActivitiesFixtures do
         distance_meters: 100_069.9,
         elevation_meters: 696.9,
         moving_seconds: 10000,
-        strava_data: strava_data
+        strava_data: strava_data,
+        include_in_competition: true
       })
       |> MayIsBikeMonth.CompetitionActivities.create_competition_activity()
 
