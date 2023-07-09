@@ -116,10 +116,16 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
     test "create_competition_participants/1 creates competition_participants for the competition" do
       competition = competition_fixture()
-      MayIsBikeMonth.ParticipantsFixtures.participant_fixture()
+
+      MayIsBikeMonth.CompetitionParticipantsFixtures.competition_participant_fixture(
+        competition_id: competition.id
+      )
+
+      MayIsBikeMonth.ParticipantsFixtures.participant_fixture(strava_id: "22223")
+
       Competitions.create_competition_participants(competition)
 
-      assert length(MayIsBikeMonth.CompetitionParticipants.list_competition_participants()) == 1
+      assert length(MayIsBikeMonth.CompetitionParticipants.list_competition_participants()) == 2
     end
   end
 end

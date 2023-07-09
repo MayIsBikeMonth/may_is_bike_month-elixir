@@ -118,6 +118,29 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                CompetitionParticipants.change_competition_participant(competition_participant)
     end
 
+    test "unique_constraint on strava_id and competition_id" do
+      competition_participant = competition_participant_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               CompetitionParticipants.create_competition_participant(%{
+                 participant_id: competition_participant.participant_id,
+                 competition_id: competition_participant.competition_id
+               })
+
+      # But with a changed competition_id or participant_id, it should work
+      assert {:ok, _create_competition_participant} =
+               CompetitionParticipants.create_competition_participant(%{
+                 participant_id: competition_participant.participant_id,
+                 competition_id: competition_fixture().id
+               })
+
+      assert {:ok, _create_competition_participant} =
+               CompetitionParticipants.create_competition_participant(%{
+                 participant_id: participant_fixture(strava_id: "3242452").id,
+                 competition_id: competition_participant.competition_id
+               })
+    end
+
     test "included_activity_types/1 returns the default included_activity_types" do
       # Make this potentially configurable in the future - so someone who is injured or something can participate
       # For now, it's just a stub'

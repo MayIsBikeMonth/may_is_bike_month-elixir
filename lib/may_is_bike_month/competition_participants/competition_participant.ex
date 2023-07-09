@@ -24,7 +24,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
       :score_data
     ])
     |> validate_required([:competition_id, :participant_id])
-    |> unique_constraint(:strava_id_competition_id)
+    |> unique_constraint(:participant_id_competition_id)
     |> with_score()
   end
 

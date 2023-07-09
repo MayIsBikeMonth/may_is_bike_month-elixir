@@ -205,6 +205,19 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                CompetitionActivities.change_competition_activity(competition_activity)
     end
 
+    test "unique_constraint competition_participant_id strava_id" do
+      competition_activity = competition_activity_fixture()
+
+      IO.inspect(Map.take(competition_activity, [:competition_participant_id, :strava_id]))
+
+      assert {:error, %Ecto.Changeset{}} =
+               CompetitionActivities.create_competition_activity(%{
+                 competition_participant_id: competition_activity.competition_participant_id,
+                 strava_id: competition_activity.strava_id,
+                 strava_data: %{"type" => "Ride"}
+               })
+    end
+
     test "calculated_include_in_competition?/2 returns true for valid types" do
       competition_participant = competition_participant_fixture()
       assert competition_participant.include_in_competition == true
