@@ -39,6 +39,7 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
       :competition_participant_id
     ])
     |> validate_required([:competition_participant_id, :strava_id, :strava_data])
+    |> unique_constraint(:competition_participant_id_strava_id)
     |> with_end_date()
   end
 

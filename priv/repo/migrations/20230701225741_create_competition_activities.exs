@@ -19,6 +19,7 @@ defmodule MayIsBikeMonth.Repo.Migrations.CreateCompetitionActivities do
       timestamps()
     end
 
+    create unique_index(:competition_activities, [:competition_participant_id, :strava_id])
     create index(:competition_activities, [:competition_participant_id])
   end
 end

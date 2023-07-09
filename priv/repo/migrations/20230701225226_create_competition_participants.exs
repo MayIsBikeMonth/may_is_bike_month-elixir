@@ -12,6 +12,7 @@ defmodule MayIsBikeMonth.Repo.Migrations.CreateCompetitionParticipants do
       timestamps()
     end
 
+    create unique_index(:competition_participants, [:participant_id, :competition_id])
     create(index(:competition_participants, [:participant_id]))
     create(index(:competition_participants, [:competition_id]))
   end
