@@ -125,16 +125,23 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
         strava_id: competition_activity.strava_id
       }
 
-      assert length(CompetitionActivities.list_competition_activities()) == 1
-
       assert CompetitionActivities.get_competition_activity_for_ids!(ids).id ==
                competition_activity.id
+
+      assert {:ok, _} = CompetitionActivities.get_competition_activity_for_ids(ids)
 
       assert CompetitionActivities.get_competition_activity_for_ids!(
                Map.merge(ids, %{
                  strava_id: "321"
                })
              ) == nil
+
+      assert {:error, nil} =
+               CompetitionActivities.get_competition_activity_for_ids(
+                 Map.merge(ids, %{
+                   strava_id: "321"
+                 })
+               )
     end
 
     test "find_or_create_from_strava_data/1 with valid data creates a competition_activity" do

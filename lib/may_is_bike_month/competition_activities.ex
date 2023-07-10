@@ -118,6 +118,14 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     |> Repo.one()
   end
 
+  def get_competition_activity_for_ids(args) do
+    with %CompetitionActivity{} = competition_activity <- get_competition_activity_for_ids!(args) do
+      {:ok, competition_activity}
+    else
+      _ -> {:error, nil}
+    end
+  end
+
   def parse_strava_timezone(string) do
     Regex.replace(~r/\([^\)]*\)/, string, "")
     |> String.trim()
@@ -166,25 +174,22 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   """
   def find_or_create_from_strava_data(competition_participant, strava_data) do
     strava_attrs = strava_attrs_from_data(strava_data)
-    stored_strava_data = Map.drop(strava_data, @ignored_strava_keys)
 
     new_attrs =
       Map.merge(strava_attrs, %{
         competition_participant_id: competition_participant.id,
-        strava_data: stored_strava_data,
+        strava_data: Map.drop(strava_data, @ignored_strava_keys),
         include_in_competition:
           calculated_include_in_competition?(competition_participant, strava_data)
       })
 
-    competition_activity =
-      get_competition_activity_for_ids!(
-        Map.take(new_attrs, [:competition_participant_id, :strava_id])
-      )
-
-    if competition_activity do
+    with {:ok, competition_activity} <-
+           get_competition_activity_for_ids(
+             Map.take(new_attrs, [:competition_participant_id, :strava_id])
+           ) do
       update_competition_activity(competition_activity, new_attrs)
     else
-      create_competition_activity(new_attrs)
+      _ -> create_competition_activity(new_attrs)
     end
   end
 
