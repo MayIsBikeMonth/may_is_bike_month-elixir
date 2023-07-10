@@ -121,20 +121,25 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
     test "unique_constraint on strava_id and competition_id" do
       competition_participant = competition_participant_fixture()
 
-      assert {:error, %Ecto.Changeset{}} =
+      assert {:error, %Ecto.Changeset{} = changeset_with_error} =
                CompetitionParticipants.create_competition_participant(%{
                  participant_id: competition_participant.participant_id,
                  competition_id: competition_participant.competition_id
                })
 
-      # But with a changed competition_id or participant_id, it should work
-      assert {:ok, _create_competition_participant} =
+      assert length(changeset_with_error.errors) == 1
+      assert is_list(changeset_with_error.errors)
+      {error_attribute, _} = List.first(changeset_with_error.errors)
+      assert error_attribute == :participant_id_competition_id
+
+      # But with a changed competition_id or participant_id, it works
+      assert {:ok, _created_competition_participant} =
                CompetitionParticipants.create_competition_participant(%{
                  participant_id: competition_participant.participant_id,
                  competition_id: competition_fixture().id
                })
 
-      assert {:ok, _create_competition_participant} =
+      assert {:ok, _created_competition_participant} =
                CompetitionParticipants.create_competition_participant(%{
                  participant_id: participant_fixture(strava_id: "3242452").id,
                  competition_id: competition_participant.competition_id

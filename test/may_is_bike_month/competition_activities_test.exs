@@ -117,7 +117,27 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                competition_activity
     end
 
-    test "create_competition_activity/1 with valid data creates a competition_activity" do
+    test "get_competition_activity_for_ids!/2 returns the competition_activity with given id" do
+      competition_activity = competition_activity_fixture()
+      # Also, it works with competition_participant_id and strava_id
+      ids = %{
+        competition_participant_id: competition_activity.competition_participant_id,
+        strava_id: competition_activity.strava_id
+      }
+
+      assert length(CompetitionActivities.list_competition_activities()) == 1
+
+      assert CompetitionActivities.get_competition_activity_for_ids!(ids).id ==
+               competition_activity.id
+
+      assert CompetitionActivities.get_competition_activity_for_ids!(
+               Map.merge(ids, %{
+                 strava_id: "321"
+               })
+             ) == nil
+    end
+
+    test "find_or_create_from_strava_data/1 with valid data creates a competition_activity" do
       strava_data = load_strava_activity_data_fixture()
       competition_participant = competition_participant_fixture()
 
@@ -135,7 +155,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert CompetitionActivities.strava_attrs_from_data(strava_data) == target_strava_attrs
 
       assert {:ok, %CompetitionActivity{} = competition_activity} =
-               CompetitionActivities.create_from_strava_data(
+               CompetitionActivities.find_or_create_from_strava_data(
                  competition_participant,
                  strava_data
                )
@@ -157,6 +177,43 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
 
       assert competition_activity.include_in_competition == true
       assert competition_activity.end_date == ~D[2023-05-14]
+    end
+
+    test "find_or_create_from_strava_data/2 updates existing matching activity" do
+      strava_data = load_strava_activity_data_fixture()
+      competition_participant = competition_participant_fixture()
+
+      assert {:ok, %CompetitionActivity{} = competition_activity} =
+               CompetitionActivities.find_or_create_from_strava_data(
+                 competition_participant,
+                 strava_data
+               )
+
+      assert competition_activity.include_in_competition == true
+      assert competition_activity.distance_meters == 80961.7
+      assert competition_activity.display_name == "Craig road ride"
+      assert competition_activity.elevation_meters == 917.0
+      assert length(CompetitionActivities.list_competition_activities()) == 1
+
+      updated_data =
+        Map.merge(strava_data, %{
+          "distance" => 50.9,
+          "name" => "Hidden ride",
+          "visibility" => "only_me"
+        })
+
+      assert {:ok, %CompetitionActivity{} = competition_activity} =
+               CompetitionActivities.find_or_create_from_strava_data(
+                 competition_participant,
+                 updated_data
+               )
+
+      assert competition_activity.include_in_competition == false
+      assert competition_activity.distance_meters == 50.9
+      assert competition_activity.display_name == "Hidden ride"
+      # unchanged!
+      assert competition_activity.elevation_meters == 917.0
+      assert length(CompetitionActivities.list_competition_activities()) == 1
     end
 
     test "parse_strava_timezone/1 parses strava timezone strings" do
@@ -208,11 +265,19 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
     test "unique_constraint competition_participant_id strava_id" do
       competition_activity = competition_activity_fixture()
 
-      IO.inspect(Map.take(competition_activity, [:competition_participant_id, :strava_id]))
-
       assert {:error, %Ecto.Changeset{}} =
                CompetitionActivities.create_competition_activity(%{
                  competition_participant_id: competition_activity.competition_participant_id,
+                 strava_id: competition_activity.strava_id,
+                 strava_data: %{"type" => "Ride"}
+               })
+
+      # But it's ok if the competition_participant_id is different
+      competition_participant2 = competition_participant_fixture(strava_id: "23339")
+
+      assert {:ok, _created_activity} =
+               CompetitionActivities.create_competition_activity(%{
+                 competition_participant_id: competition_participant2.id,
                  strava_id: competition_activity.strava_id,
                  strava_data: %{"type" => "Ride"}
                })
