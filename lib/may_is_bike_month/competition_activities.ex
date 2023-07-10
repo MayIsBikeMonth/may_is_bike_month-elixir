@@ -149,6 +149,11 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     }
   end
 
+  def included_visibility?(visibility) do
+    visibility in @included_strava_visibilities
+  end
+
+  # TODO: This is messy
   def calculated_include_in_competition?(competition_participant, strava_data) do
     included_activity_type =
       MayIsBikeMonth.CompetitionParticipants.included_activity_type?(
@@ -162,7 +167,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
         strava_data["distance"]
       )
 
-    visible = Enum.member?(@included_strava_visibilities, strava_data["visibility"])
+    visible = included_visibility?(strava_data["visibility"])
 
     competition_participant.include_in_competition &&
       visible && included_activity_type && included_distance

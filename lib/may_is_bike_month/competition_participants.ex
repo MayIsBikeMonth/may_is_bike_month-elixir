@@ -31,6 +31,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   def for_competition(competition) do
     from(cp in CompetitionParticipant,
       where: cp.competition_id == ^competition.id,
+      where: cp.include_in_competition == true,
       order_by: [desc: cp.score]
     )
     |> Repo.all()
@@ -147,6 +148,15 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
+  # Convenience, update all the scores
+  def update_calculated_scores() do
+    competition_participants = list_competition_participants()
+
+    Enum.each(competition_participants, fn competition_participant ->
+      update_calculated_score(competition_participant)
+    end)
+  end
+
   def update_calculated_score(%CompetitionParticipant{} = competition_participant) do
     update_competition_participant(competition_participant, %{
       score_data: calculate_scoring_data(competition_participant)
@@ -182,7 +192,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
       ) do
     competition.periods
     |> Enum.map(fn period ->
-      period_activities_data(competition_participant, period.start_date, period.end_date)
+      period_activities_data(competition_participant, period)
       |> scoring_data_for_period()
     end)
   end
@@ -198,8 +208,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   # TODO: should be private except tests
   def period_activities_data(
         %CompetitionParticipant{} = competition_participant,
-        start_date,
-        end_date
+        %{start_date: start_date, end_date: end_date}
       ) do
     period_dates =
       Date.range(start_date, end_date)

@@ -183,7 +183,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert CompetitionParticipants.included_distance?(competition_participant, "Ride")
     end
 
-    test "period_activities_data/3 and scoring_data_for_period/1" do
+    test "period_activities_data/2 and scoring_data_for_period/1" do
       competition = competition_fixture(end_date: ~D[2023-05-31], start_date: ~D[2023-05-01])
       competition_participant = competition_participant_fixture(competition_id: competition.id)
 
@@ -208,8 +208,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       period1_data =
         CompetitionParticipants.period_activities_data(
           competition_participant,
-          ~D[2023-05-01],
-          ~D[2023-05-07]
+          %{start_date: ~D[2023-05-01], end_date: ~D[2023-05-07]}
         )
         |> CompetitionParticipants.scoring_data_for_period()
 
@@ -226,8 +225,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       assert CompetitionParticipants.period_activities_data(
                competition_participant,
-               ~D[2023-05-22],
-               ~D[2023-05-28]
+               %{start_date: ~D[2023-05-22], end_date: ~D[2023-05-28]}
              ) == [period3_activity_data]
 
       period4_activity_data =
@@ -240,8 +238,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       assert CompetitionParticipants.period_activities_data(
                competition_participant,
-               ~D[2023-05-29],
-               ~D[2023-05-31]
+               %{start_date: ~D[2023-05-29], end_date: ~D[2023-05-31]}
              ) == [period4_activity_data]
 
       assert CompetitionParticipants.scoring_data_for_period([period3_activity_data]) == %{

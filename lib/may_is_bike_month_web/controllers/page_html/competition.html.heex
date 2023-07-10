@@ -1,10 +1,14 @@
 <h1 class="text-xl mb-4">
   <%= @competition.display_name %>
 </h1>
-
+<!-- score-cell is for diagnostics, hide by default
+<style>
+  .score-cell { display: none; }
+</style>
+-->
 <div class="relative overflow-x-auto">
   <table class="w-full text-sm text-left text-gray-800" id="competition-table">
-    <thead class="text-xs text-gray-500 bg-gray-50 border-b-2">
+    <thead class="text-xs text-gray-500 bg-gray-50 border-b-2 border-r-2">
       <tr>
         <th scope="col" class="border-r-2"></th>
         <th :for={period <- @competition.periods} class="border-r-2">
@@ -15,7 +19,7 @@
             ) %>
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 pb-1 border-r">
+            <div class="px-1 pb-1 border-r elevation-cell">
               Elevation
             </div>
             <div class="px-1 pb-1 border-r">
@@ -29,15 +33,17 @@
             Total
           </span>
           <div class="grid grid-cols-3">
-            <div class="px-1 pb-1 border-r">
+            <div class="px-1 pb-1 border-r elevation-cell">
               Elevation
             </div>
             <div class="px-1 pb-1 border-r">
               Distance
             </div>
             <div class="px-1 pb-1">Days</div>
-            <div class="px-1 pb-1 text-gray-500">Score</div>
           </div>
+        </th>
+        <th scope="col" class="score-cell border-l">
+          <span class="block pt-7">Score</span>
         </th>
       </tr>
     </thead>
@@ -45,21 +51,28 @@
       <tr
         :for={{competition_participant, ind} <- Enum.with_index(@competition_participants)}
         id={"competition_participant_#{competition_participant.id}"}
-        class={"border-b-2 #{if (rem(ind, 2) == 1), do: 'bg-gray-50', else: 'bg-white'}"}
+        class={"border-b-2 #{if (rem(ind, 2) == 1), do: 'bg-gray-50', else: 'bg-white'} border-r-2"}
       >
         <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-r-2">
           <a href={"https://www.strava.com/athletes/#{competition_participant.participant.strava_id}"}>
-            <%= competition_participant.participant.display_name %> <%= ind %>
+            <%= competition_participant.participant.display_name %>
           </a>
         </th>
         <td
-          :for={period <- @competition.periods}
-          id={"cp-#{competition_participant.id}_period-#{period.start_date}"}
+          :for={
+            {score_period, period_ind} <-
+              Enum.with_index(competition_participant.score_data["periods"])
+          }
+          id={"cp-#{competition_participant.id}_period-#{period_ind}"}
           class="border-r-2"
         >
           <div class="grid grid-cols-3">
-            <div class="px-1 border-r py-1">
-              <span class="unit-elevation">m</span> <% # period.start_date %>
+            <div class="px-1 border-r py-1 elevation-cell">
+              <span class="unit-elevation" data={score_period["elevation_meters"]}>
+                <%= Number.Delimit.number_to_delimited(round(score_period["elevation_meters"]),
+                  precision: 0
+                ) %>
+              </span>
             </div>
             <div class="px-1 border-r py-1">
               <span class="unit-distance">Km</span>
@@ -71,8 +84,13 @@
         </td>
         <td scope="col" class="text-black font-bold">
           <div class="grid grid-cols-3">
-            <div class="px-1 border-r py-1">
-              <span class="unit-elevation">m</span>
+            <div class="px-1 border-r py-1 elevation-cell">
+              <span class="unit-elevation" span={score_period["elevation_meters"]}>
+                <%= Number.Delimit.number_to_delimited(
+                  round(competition_participant.score_data["elevation_meters"]),
+                  precision: 0
+                ) %>
+              </span>
             </div>
             <div class="px-1 border-r py-1">
               <span class="unit-distance">Km</span>
@@ -80,10 +98,10 @@
             <div class="px-1 py-1">
               Days
             </div>
-            <div class="px-1 py-1 text-gray-500">
-              Score
-            </div>
           </div>
+        </td>
+        <td class="score-cell border-l">
+          <%= trunc(competition_participant.score) %>
         </td>
       </tr>
       <tr class="bg-gray-50">
@@ -108,10 +126,12 @@
 <div class="mt-6">
   <h4 class="text-lg">
     <span class="units-are-metric">
-      Distance and elevation are in metric. <a href="#" class="underline">Switch to imperial</a>
+      Distance and elevation are in metric (kilometers and meters, respectively).
+      <a href="#" class="underline">Switch to imperial</a>
     </span>
     <span class="units-are-imperial hidden">
-      Distance and elevation are in imperial. <a href="#" class="underline">Switch to metric</a>
+      Distance and elevation are in imperial (miles and feet, respectively).
+      <a href="#" class="underline">Switch to metric</a>
     </span>
   </h4>
 </div>
