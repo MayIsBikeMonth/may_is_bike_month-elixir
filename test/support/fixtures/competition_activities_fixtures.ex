@@ -57,7 +57,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesFixtures do
     strava_data = attrs[:strava_data] || load_strava_activity_data_fixture()
 
     {:ok, competition_activity} =
-      MayIsBikeMonth.CompetitionActivities.find_or_create_from_strava_data(
+      MayIsBikeMonth.CompetitionActivities.create_or_update_from_strava_data(
         competition_participant,
         strava_data
       )

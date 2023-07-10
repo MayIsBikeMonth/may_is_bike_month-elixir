@@ -144,7 +144,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                )
     end
 
-    test "find_or_create_from_strava_data/1 with valid data creates a competition_activity" do
+    test "create_or_update_from_strava_data/1 with valid data creates a competition_activity" do
       strava_data = load_strava_activity_data_fixture()
       competition_participant = competition_participant_fixture()
 
@@ -162,7 +162,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert CompetitionActivities.strava_attrs_from_data(strava_data) == target_strava_attrs
 
       assert {:ok, %CompetitionActivity{} = competition_activity} =
-               CompetitionActivities.find_or_create_from_strava_data(
+               CompetitionActivities.create_or_update_from_strava_data(
                  competition_participant,
                  strava_data
                )
@@ -186,12 +186,12 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert competition_activity.end_date == ~D[2023-05-14]
     end
 
-    test "find_or_create_from_strava_data/2 updates existing matching activity" do
+    test "create_or_update_from_strava_data/2 updates existing matching activity" do
       strava_data = load_strava_activity_data_fixture()
       competition_participant = competition_participant_fixture()
 
       assert {:ok, %CompetitionActivity{} = competition_activity} =
-               CompetitionActivities.find_or_create_from_strava_data(
+               CompetitionActivities.create_or_update_from_strava_data(
                  competition_participant,
                  strava_data
                )
@@ -210,7 +210,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
         })
 
       assert {:ok, %CompetitionActivity{} = competition_activity} =
-               CompetitionActivities.find_or_create_from_strava_data(
+               CompetitionActivities.create_or_update_from_strava_data(
                  competition_participant,
                  updated_data
                )

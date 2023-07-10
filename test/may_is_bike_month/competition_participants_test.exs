@@ -259,9 +259,14 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
              }
     end
 
-    test "calculate_scoring_periods/2 with multiple" do
+    test "calculate_scoring_periods_with_activities/2 with multiple" do
       competition = competition_fixture(end_date: ~D[2023-05-31], start_date: ~D[2023-05-01])
       competition_participant = competition_participant_fixture(competition_id: competition.id)
+
+      initial_scoring_data =
+        CompetitionParticipants.calculate_scoring_data(competition_participant)
+
+      assert initial_scoring_data["score"] == 0
 
       competition_activity_fixture(
         strava_id: "1",
@@ -289,7 +294,10 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       )
 
       scoring_periods =
-        CompetitionParticipants.calculate_scoring_periods(competition_participant, competition)
+        CompetitionParticipants.calculate_scoring_periods_with_activities(
+          competition_participant,
+          competition
+        )
 
       assert length(scoring_periods) == 5
 
@@ -320,8 +328,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                }
              ]
 
-      scoring_data =
-        CompetitionParticipants.calculate_scoring_data(competition_participant, competition)
+      scoring_data = CompetitionParticipants.calculate_scoring_data(competition_participant)
 
       assert Map.keys(scoring_data) == [
                "dates",

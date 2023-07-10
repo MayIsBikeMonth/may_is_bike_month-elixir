@@ -172,7 +172,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   Creates a competition activity using the strava data that is passed in
   This is the way that all competition activities should be created!
   """
-  def find_or_create_from_strava_data(competition_participant, strava_data) do
+  def create_or_update_from_strava_data(competition_participant, strava_data) do
     strava_attrs = strava_attrs_from_data(strava_data)
 
     new_attrs =

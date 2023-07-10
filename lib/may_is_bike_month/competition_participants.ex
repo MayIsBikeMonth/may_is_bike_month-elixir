@@ -148,12 +148,11 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   end
 
   def update_calculated_score(%CompetitionParticipant{} = competition_participant) do
-    score_data = calculate_scoring_data(competition_participant)
-
-    update_competition_participant(competition_participant, %{score_data: score_data})
+    update_competition_participant(competition_participant, %{
+      score_data: calculate_scoring_data(competition_participant)
+    })
   end
 
-  # TODO: should be private except tests
   def calculate_scoring_data(%CompetitionParticipant{} = competition_participant) do
     competition =
       MayIsBikeMonth.Competitions.get_competition!(competition_participant.competition_id)
@@ -161,34 +160,26 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     calculate_scoring_data(competition_participant, competition)
   end
 
-  # TODO: should be private except tests
-  def calculate_scoring_data(%CompetitionParticipant{} = competition_participant, competition) do
-    calculate_scoring_periods(competition_participant, competition)
+  defp calculate_scoring_data(%CompetitionParticipant{} = competition_participant, competition) do
+    calculate_scoring_periods_with_activities(competition_participant, competition)
     |> scoring_periods_with_scoring_data()
   end
 
   # TODO: combine with scoring_data_for_period
-  defp scoring_periods_with_scoring_data(scoring_periods) do
-    score_data = %{
-      "dates" =>
-        Enum.reduce(scoring_periods, MapSet.new([]), fn period, acc ->
-          MapSet.union(acc, MapSet.new(period["dates"]))
-        end)
-        |> MapSet.to_list(),
-      "distance_meters" =>
-        Enum.reduce(scoring_periods, 0, fn period, acc -> period["distance_meters"] + acc end),
-      "elevation_meters" =>
-        Enum.reduce(scoring_periods, 0, fn period, acc -> period["elevation_meters"] + acc end)
-    }
+  defp scoring_periods_with_scoring_data(scoring_periods_with_activities) do
+    score_data = dates_distance_elevation(scoring_periods_with_activities)
 
     Map.merge(score_data, %{
-      "periods" => scoring_periods,
+      "periods" => scoring_periods_with_activities,
       "score" => calculate_score(score_data["dates"], score_data["distance_meters"])
     })
   end
 
   # TODO: should be private except tests
-  def calculate_scoring_periods(%CompetitionParticipant{} = competition_participant, competition) do
+  def calculate_scoring_periods_with_activities(
+        %CompetitionParticipant{} = competition_participant,
+        competition
+      ) do
     competition.periods
     |> Enum.map(fn period ->
       period_activities_data(competition_participant, period.start_date, period.end_date)
@@ -197,7 +188,11 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   end
 
   def calculate_score(dates, distance_meters) do
-    1 - 1 / distance_meters + length(dates)
+    if length(dates) == 0 do
+      0
+    else
+      1 - 1 / distance_meters + length(dates)
+    end
   end
 
   # TODO: should be private except tests
@@ -225,6 +220,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   # TODO: should be private except tests
   def scoring_data_for_period(activities_data) do
+    Map.merge(dates_distance_elevation(activities_data), %{"activities" => activities_data})
+  end
+
+  defp dates_distance_elevation(activities_data) do
     %{
       "dates" =>
         Enum.reduce(activities_data, MapSet.new([]), fn a_data, acc ->
@@ -234,8 +233,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
       "distance_meters" =>
         Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["distance_meters"] + acc end),
       "elevation_meters" =>
-        Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["elevation_meters"] + acc end),
-      "activities" => activities_data
+        Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["elevation_meters"] + acc end)
     }
   end
 end

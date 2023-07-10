@@ -20,8 +20,19 @@ defmodule MayIsBikeMonth.Competitions.Competition do
     competition
     |> cast(attrs, [:display_name, :slug, :start_date, :end_date])
     |> validate_required([:slug, :start_date, :end_date])
+    |> validate_start_before_end()
     |> with_periods()
     |> with_display_name()
+  end
+
+  defp validate_start_before_end(changeset) do
+    start_date = get_field(changeset, :start_date)
+    end_date = get_field(changeset, :end_date)
+
+    case start_date && end_date && Date.compare(start_date, end_date) do
+      :gt -> add_error(changeset, :start_date, "cannot be later than 'end_date'")
+      _ -> changeset
+    end
   end
 
   defp with_periods(changeset) do

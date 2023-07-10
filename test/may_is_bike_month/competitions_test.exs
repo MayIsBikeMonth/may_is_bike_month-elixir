@@ -79,13 +79,29 @@ defmodule MayIsBikeMonth.CompetitionsTest do
       assert {:error, %Ecto.Changeset{}} = Competitions.create_competition(@invalid_attrs)
     end
 
+    test "create_competition/1 with start_date before end_date raises error" do
+      invalid_attrs = %{
+        slug: "some-slug",
+        display_name: "some display_name",
+        end_date: ~D[2024-05-01],
+        start_date: ~D[2024-05-31]
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset_with_error} =
+               Competitions.create_competition(invalid_attrs)
+
+      assert length(changeset_with_error.errors) == 1
+      {error_attribute, _} = List.first(changeset_with_error.errors)
+      assert error_attribute == :start_date
+    end
+
     test "update_competition/2 with valid data updates the competition" do
       competition = competition_fixture()
 
       update_attrs = %{
         display_name: "some updated display_name",
-        end_date: ~D[2023-05-01],
-        start_date: ~D[2023-05-31]
+        end_date: ~D[2023-05-31],
+        start_date: ~D[2023-05-01]
       }
 
       assert {:ok, %Competition{} = competition} =

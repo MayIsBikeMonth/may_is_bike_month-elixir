@@ -36,6 +36,7 @@
               Distance
             </div>
             <div class="px-1 pb-1">Days</div>
+            <div class="px-1 pb-1 text-gray-500">Score</div>
           </div>
         </th>
       </tr>
@@ -79,6 +80,9 @@
             <div class="px-1 py-1">
               Days
             </div>
+            <div class="px-1 py-1 text-gray-500">
+              Score
+            </div>
           </div>
         </td>
       </tr>
@@ -101,13 +105,19 @@
   </table>
 </div>
 
-<div class="mt-4">
+<div class="mt-6">
   <h4 class="text-lg">
     <span class="units-are-metric">
-      Distance and elevation are in metric. <a href="#">Switch to imperial</a>
+      Distance and elevation are in metric. <a href="#" class="underline">Switch to imperial</a>
     </span>
     <span class="units-are-imperial hidden">
-      Distance and elevation are in imperial. <a href="#">Switch to metric</a>
+      Distance and elevation are in imperial. <a href="#" class="underline">Switch to metric</a>
     </span>
   </h4>
 </div>
+
+<pre class="overflow-x-scroll">
+  <code>
+    <%= # inspect(List.first(@competition_participants), prety: true, width: 0) %>
+  </code>
+</pre>
