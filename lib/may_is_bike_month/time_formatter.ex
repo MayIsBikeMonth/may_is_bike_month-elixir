@@ -25,6 +25,10 @@ defmodule MayIsBikeMonth.TimeFormatter do
     end
   end
 
+  def format(%Date{} = date, out_format) do
+    Timex.format!(date, out_format, :strftime)
+  end
+
   defp time_parser_format(time) do
     today_start = Timex.beginning_of_day(in_timezone(DateTime.utc_now(), time.time_zone))
     yesterday_start = DateTime.add(today_start, -1, :day)

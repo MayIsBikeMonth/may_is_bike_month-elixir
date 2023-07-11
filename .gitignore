@@ -40,3 +40,5 @@ npm-debug.log
 
 # Construction notes. Contains secrets
 notes.md
+notes.markdown
+activity*.json
