@@ -25,12 +25,26 @@ defmodule MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant do
     ])
     |> validate_required([:competition_id, :participant_id])
     |> unique_constraint(:participant_id_competition_id)
-    |> with_score()
+    |> with_score_data_and_score()
   end
 
-  defp with_score(changeset) do
-    score_data = get_field(changeset, :score_data)
-    score = (score_data && score_data["score"]) || 0.0
-    put_change(changeset, :score, score)
+  defp with_score_data_and_score(changeset) do
+    score_data_field = get_field(changeset, :score_data) || %{}
+
+    score_data =
+      if score_data_field == %{} do
+        MayIsBikeMonth.CompetitionParticipants.empty_score_data(
+          get_field(changeset, :competition_id)
+        )
+      else
+        score_data_field
+      end
+
+    put_change(changeset, :score_data, score_data)
+    |> with_score(score_data)
+  end
+
+  defp with_score(changeset, score_data) do
+    put_change(changeset, :score, score_data["score"])
   end
 end

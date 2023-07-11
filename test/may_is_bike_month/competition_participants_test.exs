@@ -45,6 +45,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert competition_participant.competition_id == competition.id
       assert competition_participant.participant_id == participant.id
       assert competition_participant.participant == participant
+      assert competition_participant.score_data["score"] == 0.0
     end
 
     test "create_competition_participant/1 with valid data creates a competition_participant" do
@@ -207,7 +208,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       period1_data =
         CompetitionParticipants.period_activities_data(
-          competition_participant,
+          competition_participant.id,
           %{start_date: ~D[2023-05-01], end_date: ~D[2023-05-07]}
         )
         |> CompetitionParticipants.scoring_data_for_period()
@@ -224,7 +225,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       }
 
       assert CompetitionParticipants.period_activities_data(
-               competition_participant,
+               competition_participant.id,
                %{start_date: ~D[2023-05-22], end_date: ~D[2023-05-28]}
              ) == [period3_activity_data]
 
@@ -237,7 +238,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
         })
 
       assert CompetitionParticipants.period_activities_data(
-               competition_participant,
+               competition_participant.id,
                %{start_date: ~D[2023-05-29], end_date: ~D[2023-05-31]}
              ) == [period4_activity_data]
 
@@ -254,6 +255,26 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                "elevation_meters" => 0,
                "activities" => [period4_activity_data]
              }
+    end
+
+    test "empty_score_data" do
+      competition = competition_fixture()
+
+      empty_period_data = %{
+        "dates" => [],
+        "distance_meters" => 0,
+        "elevation_meters" => 0,
+        "activities" => []
+      }
+
+      assert CompetitionParticipants.empty_score_data(competition.id) ==
+               %{
+                 "dates" => [],
+                 "distance_meters" => 0,
+                 "elevation_meters" => 0,
+                 "score" => 0,
+                 "periods" => Enum.map(competition.periods, fn _ -> empty_period_data end)
+               }
     end
 
     test "calculate_scoring_periods_with_activities/2 with multiple" do
@@ -292,8 +313,8 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
 
       scoring_periods =
         CompetitionParticipants.calculate_scoring_periods_with_activities(
-          competition_participant,
-          competition
+          competition_participant.id,
+          competition.periods
         )
 
       assert length(scoring_periods) == 5

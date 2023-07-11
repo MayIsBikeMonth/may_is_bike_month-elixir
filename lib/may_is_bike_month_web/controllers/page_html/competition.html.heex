@@ -1,11 +1,11 @@
 <h1 class="text-xl mb-4">
   <%= @competition.display_name %>
 </h1>
-<!-- score-cell is for diagnostics, hide by default
+<!-- score-cell is for diagnostics, hide by default -->
 <style>
   .score-cell { display: none; }
 </style>
--->
+
 <div class="relative overflow-x-auto">
   <table class="w-full text-sm text-left text-gray-800" id="competition-table">
     <thead class="text-xs text-gray-500 bg-gray-50 border-b-2 border-r-2">
@@ -20,10 +20,16 @@
           </span>
           <div class="grid grid-cols-3">
             <div class="px-1 pb-1 border-r elevation-cell">
-              Elevation
+              ⬆️
+              <span class="font-normal">
+                (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
+              </span>
             </div>
             <div class="px-1 pb-1 border-r">
-              Distance
+              ➡️
+              <span class="font-normal">
+                (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
+              </span>
             </div>
             <div class="px-1 pb-1">Days</div>
           </div>
@@ -34,10 +40,16 @@
           </span>
           <div class="grid grid-cols-3">
             <div class="px-1 pb-1 border-r elevation-cell">
-              Elevation
+              ⬆️
+              <span class="font-normal">
+                (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
+              </span>
             </div>
             <div class="px-1 pb-1 border-r">
-              Distance
+              ➡️
+              <span class="font-normal">
+                (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
+              </span>
             </div>
             <div class="px-1 pb-1">Days</div>
           </div>
@@ -61,42 +73,69 @@
         <td
           :for={
             {score_period, period_ind} <-
-              Enum.with_index(competition_participant.score_data["periods"])
+              Enum.with_index(
+                if competition_participant.score_data,
+                  do: competition_participant.score_data["periods"],
+                  else: []
+              )
           }
           id={"cp-#{competition_participant.id}_period-#{period_ind}"}
           class="border-r-2"
         >
+          <% # TODO: if the date is before the period.start_date, skip rendering! %>
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1 elevation-cell">
-              <span class="unit-elevation" data={score_period["elevation_meters"]}>
-                <%= Number.Delimit.number_to_delimited(round(score_period["elevation_meters"]),
-                  precision: 0
-                ) %>
+              <span class="hidden unit-metric">
+                <.number_display number={score_period["elevation_meters"]} />
+              </span>
+              <span class="hidden unit-imperial">
+                <.number_display number={score_period["elevation_meters"] * 3.28084} />
               </span>
             </div>
             <div class="px-1 border-r py-1">
-              <span class="unit-distance">Km</span>
+              <span class="hidden unit-metric">
+                <.number_display number={score_period["distance_meters"] / 1000} precision={1} />
+              </span>
+              <span class="hidden unit-imperial">
+                <.number_display
+                  number={score_period["distance_meters"] / 1609.344}
+                  precision={1}
+                />
+              </span>
             </div>
             <div class="px-1 py-1">
-              Days
+              <.number_display number={length(score_period["dates"])} />
             </div>
           </div>
         </td>
         <td scope="col" class="text-black font-bold">
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1 elevation-cell">
-              <span class="unit-elevation" span={score_period["elevation_meters"]}>
-                <%= Number.Delimit.number_to_delimited(
-                  round(competition_participant.score_data["elevation_meters"]),
-                  precision: 0
-                ) %>
+              <span class="hidden unit-metric">
+                <.number_display number={competition_participant.score_data["elevation_meters"]} />
+              </span>
+              <span class="hidden unit-imperial">
+                <.number_display number={
+                  competition_participant.score_data["elevation_meters"] * 3.28084
+                } />
               </span>
             </div>
             <div class="px-1 border-r py-1">
-              <span class="unit-distance">Km</span>
+              <span class="hidden unit-metric">
+                <.number_display
+                  number={competition_participant.score_data["distance_meters"] / 1000}
+                  precision={1}
+                />
+              </span>
+              <span class="hidden unit-imperial">
+                <.number_display
+                  number={competition_participant.score_data["distance_meters"] / 1609.344}
+                  precision={1}
+                />
+              </span>
             </div>
             <div class="px-1 py-1">
-              Days
+              <.number_display number={length(competition_participant.score_data["dates"])} />
             </div>
           </div>
         </td>
@@ -104,20 +143,30 @@
           <%= trunc(competition_participant.score) %>
         </td>
       </tr>
-      <tr class="bg-gray-50">
-        <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap border-r-2">
-          Microsoft Surface Pro
-        </th>
-        <td class="px-6 py-4">
-          White
+      <tr>
+        <td
+          colspan={length(@competition.periods) + 1}
+          class="text-right font-bold border-r-2 text-lg pr-1"
+        >
+          Total
         </td>
-        <td class="px-6 py-4">
-          Laptop PC
+        <td scope="col" class="text-black font-bold">
+          <div class="grid grid-cols-3">
+            <div class="px-1 border-r py-1 elevation-cell">
+              <span class="unit-elevation">
+                <.number_display number={0} />
+              </span>
+            </div>
+            <div class="px-1 border-r py-1">
+              <span class="unit-distance">
+                <.number_display number={0} precision={1} />
+              </span>
+            </div>
+            <div class="px-1 py-1">
+              <.number_display number={0} />
+            </div>
+          </div>
         </td>
-        <td class="px-6 py-4">
-          $1999
-        </td>
-        <td class="px-6 py-4"></td>
       </tr>
     </tbody>
   </table>
@@ -125,13 +174,13 @@
 
 <div class="mt-6">
   <h4 class="text-lg">
-    <span class="units-are-metric">
-      Distance and elevation are in metric (kilometers and meters, respectively).
-      <a href="#" class="underline">Switch to imperial</a>
+    <span class="hidden unit-metric">
+      Distance and elevation are in metric.
+      <a class="underline cursor-pointer toggleUnitPreference">Switch to imperial</a>
     </span>
-    <span class="units-are-imperial hidden">
-      Distance and elevation are in imperial (miles and feet, respectively).
-      <a href="#" class="underline">Switch to metric</a>
+    <span class="hidden unit-imperial">
+      Distance and elevation are in imperial.
+      <a class="underline cursor-pointer toggleUnitPreference">Switch to metric</a>
     </span>
   </h4>
 </div>

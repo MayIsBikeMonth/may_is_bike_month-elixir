@@ -562,6 +562,23 @@ defmodule MayIsBikeMonthWeb.CoreComponents do
   end
 
   @doc """
+  Renders a number, passing through NumberFormatter.with_delimiter/2
+
+  if the number is 0, it will render with 50% opacity instead
+  """
+
+  attr :number, :any, required: true
+  attr :precision, :integer, default: 0
+
+  def number_display(assigns) do
+    ~H"""
+    <span class={if @number == 0, do: "opacity-50", else: ""}>
+      <%= MayIsBikeMonth.NumberFormatter.with_delimiter(@number, precision: @precision) %>
+    </span>
+    """
+  end
+
+  @doc """
   Renders a [Heroicon](https://heroicons.com).
 
   Heroicons come in three styles – outline, solid, and mini.

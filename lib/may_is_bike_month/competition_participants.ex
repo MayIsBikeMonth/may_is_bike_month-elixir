@@ -163,19 +163,27 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     })
   end
 
+  def empty_score_data(nil), do: %{}
+
+  def empty_score_data(competition_id) do
+    competition = MayIsBikeMonth.Competitions.get_competition!(competition_id)
+
+    calculate_scoring_periods_with_activities(nil, competition.periods)
+    |> scoring_periods_with_scoring_data()
+  end
+
   def calculate_scoring_data(%CompetitionParticipant{} = competition_participant) do
     competition =
       MayIsBikeMonth.Competitions.get_competition!(competition_participant.competition_id)
 
-    calculate_scoring_data(competition_participant, competition)
+    calculate_scoring_data(competition_participant.id, competition)
   end
 
-  defp calculate_scoring_data(%CompetitionParticipant{} = competition_participant, competition) do
-    calculate_scoring_periods_with_activities(competition_participant, competition)
+  defp calculate_scoring_data(competition_participant_id, competition) do
+    calculate_scoring_periods_with_activities(competition_participant_id, competition.periods)
     |> scoring_periods_with_scoring_data()
   end
 
-  # TODO: combine with scoring_data_for_period
   defp scoring_periods_with_scoring_data(scoring_periods_with_activities) do
     score_data = dates_distance_elevation(scoring_periods_with_activities)
 
@@ -187,12 +195,12 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   # TODO: should be private except tests
   def calculate_scoring_periods_with_activities(
-        %CompetitionParticipant{} = competition_participant,
-        competition
+        competition_participant_id,
+        periods
       ) do
-    competition.periods
+    periods
     |> Enum.map(fn period ->
-      period_activities_data(competition_participant, period)
+      period_activities_data(competition_participant_id, period)
       |> scoring_data_for_period()
     end)
   end
@@ -207,7 +215,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   # TODO: should be private except tests
   def period_activities_data(
-        %CompetitionParticipant{} = competition_participant,
+        competition_participant_id,
         %{start_date: start_date, end_date: end_date}
       ) do
     period_dates =
@@ -215,7 +223,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
       |> MapSet.new()
 
     MayIsBikeMonth.CompetitionActivities.list_competition_activities(%{
-      competition_participant_id: competition_participant.id,
+      competition_participant_id: competition_participant_id,
       include_in_competition: true,
       start_date: start_date,
       end_date: end_date,
