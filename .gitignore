@@ -38,6 +38,12 @@ npm-debug.log
 # Language server, generally auto ignored
 .elixir_ls
 
+# Ignore .iex.exs configure file
+.iex.exs
+
+# Ignore .env file
+.env
+
 # Construction notes. Contains secrets
 notes.md
 notes.markdown

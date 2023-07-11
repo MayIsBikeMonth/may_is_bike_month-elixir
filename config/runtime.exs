@@ -20,6 +20,16 @@ if System.get_env("PHX_SERVER") do
   config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint, server: true
 end
 
+# Load DotevnParser if it's available and there is a .env file
+case Code.ensure_loaded(DotenvParser) do
+  {:module, _} ->
+    File.exists?(Path.expand(".env")) && DotenvParser.load_file(".env")
+end
+
+config :may_is_bike_month, :strava,
+  client_id: System.get_env("STRAVA_CLIENT_ID"),
+  client_secret: System.get_env("STRAVA_SECRET")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
