@@ -72,3 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
   showPreferredUnit()
   window.addEventListener("phx:update", function() { showPreferredUnit() })
 })
+
+toggleActivities = (_event) => {
+  document.querySelectorAll(".activityList").forEach(el => el.classList.toggle("hidden"))
+}
+document.querySelector('#toggleIndividualActivities').addEventListener("click", toggleActivities)

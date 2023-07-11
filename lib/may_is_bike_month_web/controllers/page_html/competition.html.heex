@@ -1,5 +1,9 @@
 <h1 class="text-xl mb-4">
   <%= @competition.display_name %>
+  <!-- TODO: individually toggle activities -->
+  <a id="toggleIndividualActivities" class="text-blue-800 underline cursor-pointer text-sm ml-2">
+    toggle activities
+  </a>
 </h1>
 <!-- score-cell is for diagnostics, hide by default -->
 <style>
@@ -8,7 +12,7 @@
 
 <div class="relative overflow-x-auto">
   <table class="w-full text-sm text-left text-gray-800" id="competition-table">
-    <thead class="text-xs text-gray-500 bg-gray-50 border-b-2 border-r-2">
+    <thead class="text-xs text-gray-500 bg-gray-50 border-2">
       <tr>
         <th scope="col" class="border-r-2"></th>
         <th :for={period <- @competition.periods} class="border-r-2">
@@ -65,7 +69,7 @@
         id={"competition_participant_#{competition_participant.id}"}
         class={"border-b-2 #{if (rem(ind, 2) == 1), do: 'bg-gray-50', else: 'bg-white'} border-r-2"}
       >
-        <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-r-2">
+        <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-l-2 border-r-2">
           <a href={"https://www.strava.com/athletes/#{competition_participant.participant.strava_id}"}>
             <%= competition_participant.participant.display_name %>
           </a>
@@ -80,7 +84,7 @@
               )
           }
           id={"cp-#{competition_participant.id}_period-#{period_ind}"}
-          class="border-r-2"
+          class="border-r-2 align-top"
         >
           <% # TODO: if the date is before the period.start_date, skip rendering! %>
           <div class="grid grid-cols-3">
@@ -107,8 +111,27 @@
               <.number_display number={length(score_period["dates"])} />
             </div>
           </div>
+          <%= if length(score_period["activities"]) > 0 do %>
+            <ul class="list-disc pl-4 pt-1 hidden activityList">
+              <li :for={activity <- score_period["activities"]} class="text-sm">
+                <%= # MayIsBikeMonth.TimeFormatter.format(Enum.at(activity["dates"], 0), "%b %-d") %>
+                <a href={"https://www.strava.com/activities/#{activity["strava_id"]}"} target="_blank" class="text-blue-800 underline"><%= activity["display_name"] %></a>
+                <span class="text-gray-500 text-xs">
+                  <span class="hidden unit-metric">
+                    <.number_display number={activity["distance_meters"] / 1000} precision={1} /> km
+                  </span>
+                  <span class="hidden unit-imperial">
+                    <.number_display
+                      number={activity["distance_meters"] / 1609.344}
+                      precision={1}
+                    /> miles
+                  </span>
+                </span>
+              </li>
+            </ul>
+          <% end %>
         </td>
-        <td scope="col" class="text-black font-bold">
+        <td scope="col" class="text-black font-bold align-top">
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1 elevation-cell">
               <span class="hidden unit-metric">
@@ -148,9 +171,9 @@
           colspan={length(@competition.periods) + 1}
           class="text-right font-bold border-r-2 text-lg pr-1"
         >
-          Total
+          Crushing it!
         </td>
-        <td scope="col" class="text-black font-bold">
+        <td scope="col" class="text-black font-bold border-r-2">
           <div class="grid grid-cols-3">
             <div class="px-1 border-r py-1 elevation-cell">
               <span class="unit-elevation">
@@ -172,15 +195,15 @@
   </table>
 </div>
 
-<div class="mt-6">
+<div class="mt-10">
   <h4 class="text-lg">
     <span class="hidden unit-metric">
       Distance and elevation are in metric.
-      <a class="underline cursor-pointer toggleUnitPreference">Switch to imperial</a>
+      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">Switch to imperial</a>
     </span>
     <span class="hidden unit-imperial">
       Distance and elevation are in imperial.
-      <a class="underline cursor-pointer toggleUnitPreference">Switch to metric</a>
+      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">Switch to metric</a>
     </span>
   </h4>
 </div>
