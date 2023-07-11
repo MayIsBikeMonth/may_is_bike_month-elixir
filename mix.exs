@@ -33,6 +33,7 @@ defmodule MayIsBikeMonth.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
+      {:dotenv_parser, "~> 2.0", only: [:dev, :test]},
       {:gettext, "~> 0.20"},
       {:ecto_sql, "~> 3.10"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
