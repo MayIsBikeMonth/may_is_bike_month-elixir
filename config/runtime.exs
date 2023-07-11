@@ -27,8 +27,8 @@ case Code.ensure_loaded(DotenvParser) do
 end
 
 config :may_is_bike_month, :strava,
-  client_id: System.fetch_env!("STRAVA_CLIENT_ID"),
-  client_secret: System.fetch_env!("STRAVA_SECRET")
+  client_id: System.get_env("STRAVA_CLIENT_ID"),
+  client_secret: System.get_env("STRAVA_SECRET")
 
 if config_env() == :prod do
   database_url =

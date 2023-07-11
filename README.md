@@ -1,6 +1,6 @@
 # MayIsBikeMonth
 
-This is a [Phoenix App](https://www.phoenixframework.org/) to generate the leaderboard for the May is Bike Month group.
+This is a [Phoenix App](https://www.phoenixframework.org/) to track the score and generate the leaderboard for the May is Bike Month group.
 
 ## Running locally
 
