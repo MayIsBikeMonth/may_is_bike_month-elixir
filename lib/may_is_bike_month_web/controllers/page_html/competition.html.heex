@@ -115,15 +115,24 @@
               <ul class="list-disc pl-4 pt-1 hidden activityList">
                 <li :for={activity <- score_period["activities"]} class="text-sm">
                   <span class="text-gray-500 text-xs">
-                    <%= Enum.map_join(activity["dates"], ", ", fn d -> Regex.replace(~r/\A\d\d\d\d-/,d, "") end) %>
+                    <%= Enum.map_join(activity["dates"], ", ", fn d ->
+                      Regex.replace(~r/\A\d\d\d\d-/, d, "")
+                    end) %>
                     <%= if activity["starts_in_previous_period"] do %>
                       <span class="text-xs">started in previous period️</span>
                     <% end %>
                   </span>
-                  <a href={"https://www.strava.com/activities/#{activity["strava_id"]}"} target="_blank" class="text-blue-800 underline pr-1"><%= activity["display_name"] %></a>
+                  <a
+                    href={"https://www.strava.com/activities/#{activity["strava_id"]}"}
+                    target="_blank"
+                    class="text-blue-800 underline pr-1"
+                  >
+                    <%= activity["display_name"] %>
+                  </a>
                   <span class="text-gray-500 text-xs">
                     <span class="hidden unit-metric">
-                      <.number_display number={activity["distance_meters"] / 1000} precision={1} /> km
+                      <.number_display number={activity["distance_meters"] / 1000} precision={1} />
+                      km
                     </span>
                     <span class="hidden unit-imperial">
                       <.number_display
@@ -205,7 +214,9 @@
   <h4 class="text-lg">
     <span class="hidden unit-metric">
       Distance and elevation are in metric.
-      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">Switch to imperial</a>
+      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">
+        Switch to imperial
+      </a>
     </span>
     <span class="hidden unit-imperial">
       Distance and elevation are in imperial.
