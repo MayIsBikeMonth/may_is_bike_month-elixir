@@ -17,9 +17,11 @@ defmodule MayIsBikeMonth.Participants do
       [%Participant{}, ...]
 
   """
-  def list_participants do
-    Repo.all(Participant)
+  def list_participants(opts) do
+    Repo.all(from p in Participant, limit: ^Keyword.fetch!(opts, :limit))
   end
+
+  def list_participants, do: list_participants(limit: 100)
 
   @doc """
   Gets a single participant.
@@ -36,6 +38,19 @@ defmodule MayIsBikeMonth.Participants do
 
   """
   def get_participant!(id), do: Repo.get!(Participant, id)
+
+  def get_participant(id), do: Repo.get(Participant, id)
+
+  def get_participant_by_strava_id(strava_id) do
+    strava_id_string = to_string(strava_id)
+
+    from(p in Participant, where: p.strava_id == ^strava_id_string)
+    |> Repo.one()
+  end
+
+  def admin?(%Participant{} = participant) do
+    participant.strava_id in MayIsBikeMonth.config([:strava, :admin_ids])
+  end
 
   @doc """
   Creates a participant.

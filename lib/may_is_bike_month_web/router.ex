@@ -2,6 +2,7 @@ defmodule MayIsBikeMonthWeb.Router do
   use MayIsBikeMonthWeb, :router
 
   import MayIsBikeMonthWeb.UserAuth
+  import MayIsBikeMonthWeb.ParticipantAuth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -46,6 +47,11 @@ defmodule MayIsBikeMonthWeb.Router do
   end
 
   ## Authentication routes
+  scope "/", MayIsBikeMonthWeb do
+    pipe_through [:browser, :redirect_if_participant_is_authenticated]
+
+    get "/oauth/callbacks/:provider", OAuthCallbackController, :new
+  end
 
   scope "/", MayIsBikeMonthWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
@@ -73,6 +79,8 @@ defmodule MayIsBikeMonthWeb.Router do
 
   scope "/", MayIsBikeMonthWeb do
     pipe_through [:browser]
+
+    delete "/signout", OAuthCallbackController, :sign_out
 
     delete "/users/log_out", UserSessionController, :delete
 

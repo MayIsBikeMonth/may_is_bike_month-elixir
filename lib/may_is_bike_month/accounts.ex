@@ -11,6 +11,20 @@ defmodule MayIsBikeMonth.Accounts do
   ## Database getters
 
   @doc """
+  Returns the list of competition_participants.
+
+  ## Examples
+
+      iex> list_competition_participants()
+      [%CompetitionParticipant{}, ...]
+
+  """
+  def list_users do
+    from(User)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a user by email.
 
   ## Examples

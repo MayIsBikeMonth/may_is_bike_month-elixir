@@ -26,6 +26,10 @@ defmodule MayIsBikeMonth.ParticipantsTest do
     test "get_participant!/1 returns the participant with given id" do
       participant = participant_fixture()
       assert Participants.get_participant!(participant.id) == participant
+      assert Participants.get_participant(participant.id) == participant
+      assert Participants.get_participant_by_strava_id(participant.strava_id) == participant
+      # It also works when passed an integer, since that's how they come in'
+      assert Participants.get_participant_by_strava_id(2_430_215) == participant
     end
 
     test "create_participant/1 with valid data creates a participant" do

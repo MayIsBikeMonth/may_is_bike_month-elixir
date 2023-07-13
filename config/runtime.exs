@@ -1,5 +1,15 @@
 import Config
 
+# Load DotevnParser if it's available and there is a .env file
+# This should be in dev.exs and test.exs, but it isn't working, so whatevs'
+case Code.ensure_loaded(DotenvParser) do
+  {:module, _} ->
+    File.exists?(Path.expand(".env")) && DotenvParser.load_file(".env")
+
+  _ ->
+    :ok
+end
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration
@@ -20,15 +30,10 @@ if System.get_env("PHX_SERVER") do
   config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint, server: true
 end
 
-# Load DotevnParser if it's available and there is a .env file
-case Code.ensure_loaded(DotenvParser) do
-  {:module, _} ->
-    File.exists?(Path.expand(".env")) && DotenvParser.load_file(".env")
-end
-
 config :may_is_bike_month, :strava,
   client_id: System.get_env("STRAVA_CLIENT_ID"),
-  client_secret: System.get_env("STRAVA_SECRET")
+  client_secret: System.get_env("STRAVA_SECRET"),
+  admin_ids: System.get_env("STRAVA_ADMIN_IDS")
 
 if config_env() == :prod do
   database_url =

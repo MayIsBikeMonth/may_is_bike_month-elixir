@@ -183,23 +183,23 @@
         <tr>
           <td
             colspan={length(@competition.periods) + 1}
-            class="text-right font-bold border-r-2 text-lg pr-1"
+            class="text-right font-bold border-r-2 text-lg pr-1 pt-1"
           >
             Crushing it!
           </td>
           <td scope="col" class="text-black font-bold border-r-2">
             <div class="grid grid-cols-3">
-              <div class="px-1 border-r py-1 elevation-cell">
+              <div class="px-1 border-r pt-2 elevation-cell">
                 <span class="unit-elevation">
                   <.number_display number={0} />
                 </span>
               </div>
-              <div class="px-1 border-r py-1">
+              <div class="px-1 border-r pt-2">
                 <span class="unit-distance">
                   <.number_display number={0} precision={1} />
                 </span>
               </div>
-              <div class="px-1 py-1">
+              <div class="px-1 pt-2">
                 <.number_display number={0} />
               </div>
             </div>
