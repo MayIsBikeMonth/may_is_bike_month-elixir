@@ -53,6 +53,19 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   @doc """
+  Creates a participant and a strava_token
+  """
+  def register_strava_participant(attrs \\ %{}) do
+    participant =
+      get_participant_by_strava_id(attrs["strava_id"]) ||
+        %Participant{}
+        |> Participant.changeset(attrs)
+        |> Repo.insert()
+  end
+
+  ## Examples
+
+  @doc """
   Creates a participant.
 
   ## Examples

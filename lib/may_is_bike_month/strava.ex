@@ -1,4 +1,3 @@
-# TODO: Add a
 defmodule MayIsBikeMonth.Strava do
   def authorize_url() do
     "https://strava.com/login/oauth/authorize?client_id=#{client_id()}&scope=activity:read_all,profile:read_all"
@@ -9,7 +8,10 @@ defmodule MayIsBikeMonth.Strava do
 
     code
     |> fetch_exchange_response()
-    |> fetch_participant_info()
+
+    # It doesn't seem like we need to actually make this call,
+    # enough information is returned in the original response
+    # |> fetch_participant_info()
   end
 
   defp fetch_exchange_response(code) do
@@ -31,23 +33,22 @@ defmodule MayIsBikeMonth.Strava do
     end
   end
 
-  defp fetch_participant_info({:error, _reason} = error), do: error
+  # defp fetch_participant_info({:error, _reason} = error), do: error
+  # defp fetch_participant_info({:ok, token}) do
+  #   resp =
+  #     http(
+  #       "www.strava.com",
+  #       "GET",
+  #       "/api/v3/athlete",
+  #       [],
+  #       [{"accept", "application/json"}, {"Authorization", "Bearer #{token}"}]
+  #     )
 
-  defp fetch_participant_info({:ok, token}) do
-    resp =
-      http(
-        "www.strava.com",
-        "GET",
-        "/api/v3/athlete",
-        [],
-        [{"accept", "application/json"}, {"Authorization", "Bearer #{token}"}]
-      )
-
-    case resp do
-      {:ok, info} -> {:ok, %{info: Jason.decode!(info), token: token}}
-      {:error, _reason} = err -> err
-    end
-  end
+  #   case resp do
+  #     {:ok, info} -> {:ok, %{info: Jason.decode!(info), token: token}}
+  #     {:error, _reason} = err -> err
+  #   end
+  # end
 
   defp client_id, do: MayIsBikeMonth.config([:strava, :client_id])
   defp secret, do: MayIsBikeMonth.config([:strava, :client_secret])

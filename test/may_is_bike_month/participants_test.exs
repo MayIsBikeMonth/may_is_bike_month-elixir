@@ -13,7 +13,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       first_name: nil,
       image_url: nil,
       last_name: nil,
-      strava_auth: nil,
       strava_id: nil,
       strava_username: nil
     }
@@ -37,7 +36,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
         first_name: "some first_name",
         image_url: "some image_url",
         last_name: "some last_name",
-        strava_auth: %{},
         strava_id: "some strava_id",
         strava_username: "some strava_username"
       }
@@ -47,7 +45,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       assert participant.first_name == "some first_name"
       assert participant.image_url == "some image_url"
       assert participant.last_name == "some last_name"
-      assert participant.strava_auth == %{}
       assert participant.strava_id == "some strava_id"
       assert participant.strava_username == "some strava_username"
     end
@@ -62,7 +59,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
         first_name: "some first_name",
         image_url: "some image_url",
         last_name: "some last_name",
-        strava_auth: %{},
         strava_id: "123456",
         strava_username: "some strava_username"
       }
@@ -83,7 +79,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
         first_name: "some updated first_name",
         image_url: "some updated image_url",
         last_name: "some updated last_name",
-        strava_auth: %{},
         strava_id: "some updated strava_id",
         strava_username: "some updated strava_username"
       }
@@ -95,7 +90,6 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       assert participant.first_name == "some updated first_name"
       assert participant.image_url == "some updated image_url"
       assert participant.last_name == "some updated last_name"
-      assert participant.strava_auth == %{}
       assert participant.strava_id == "some updated strava_id"
       assert participant.strava_username == "some updated strava_username"
     end
