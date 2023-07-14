@@ -111,9 +111,6 @@ defmodule MayIsBikeMonthWeb.ParticipantAuth do
 
   @doc """
   Used for routes that require the participant to be authenticated.
-
-  If you want to enforce the participant email is confirmed before
-  they use the application at all, here would be a good place.
   """
   def require_authenticated_participant(conn, _opts) do
     if conn.assigns[:current_participant] do
