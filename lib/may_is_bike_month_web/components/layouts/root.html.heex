@@ -13,21 +13,13 @@
   </head>
   <body class="bg-white antialiased">
     <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
-      <%= if @current_user do %>
+      <%= if @current_participant do %>
         <li class="text-[0.8125rem] leading-6 text-zinc-900">
-          <%= @current_user.email %>
+          <%= @current_participant.display_name %>
         </li>
         <li>
           <.link
-            href={~p"/users/settings"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Settings
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/log_out"}
+            href={~p"/signout"}
             method="delete"
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
@@ -37,15 +29,7 @@
       <% else %>
         <li>
           <.link
-            href={~p"/users/register"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Register
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/log_in"}
+            href={~p"/oauth/callbacks/strava"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Log in
