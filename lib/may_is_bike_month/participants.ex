@@ -105,12 +105,12 @@ defmodule MayIsBikeMonth.Participants do
 
   def participant_from_strava_token_response(token_response) do
     %{
-      access_token: access,
-      refresh_token: refresh,
-      expires_at: expires_at,
-      athlete: meta,
-      token_type: "Bearer",
-      expires_in: _
+      "access_token" => access,
+      "refresh_token" => refresh,
+      "expires_at" => expires_at,
+      "athlete" => meta,
+      "token_type" => "Bearer",
+      "expires_in" => _
     } = token_response
 
     participant_from_strava_token_response(access, refresh, expires_at, meta)

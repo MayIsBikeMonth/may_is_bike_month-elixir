@@ -17,12 +17,12 @@ defmodule MayIsBikeMonth.StravaTokensFixtures do
     strava_id = attrs[:strava_id] || @default_strava_id
 
     %{
-      token_type: "Bearer",
-      expires_at: token_expires_at(21600),
-      expires_in: 21600,
-      refresh_token: "xxxx-refresh-token",
-      access_token: "yyyy-access-token",
-      athlete: %{
+      "token_type" => "Bearer",
+      "expires_at" => token_expires_at(21600),
+      "expires_in" => 21600,
+      "refresh_token" => "xxxx-refresh-token",
+      "access_token" => "yyyy-access-token",
+      "athlete" => %{
         "id" => strava_id,
         "username" => "sethherr",
         "resource_state" => 2,
@@ -62,12 +62,12 @@ defmodule MayIsBikeMonth.StravaTokensFixtures do
       end
 
     %{
-      access_token: access,
-      refresh_token: refresh,
-      expires_at: expires_at,
-      athlete: meta,
-      token_type: "Bearer",
-      expires_in: _
+      "access_token" => access,
+      "refresh_token" => refresh,
+      "expires_at" => expires_at,
+      "athlete" => meta,
+      "token_type" => "Bearer",
+      "expires_in" => _
     } = example_strava_token_response(strava_id: attrs[:strava_id] || @default_strava_id)
 
     {:ok, strava_token} =

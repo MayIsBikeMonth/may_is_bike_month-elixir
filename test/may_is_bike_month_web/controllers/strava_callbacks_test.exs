@@ -2,7 +2,6 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
   # use MayIsBikeMonthWeb.ConnCase, async: true
 
   # alias MayIsBikeMonth.Participants
-  # import MayIsBikeMonth.StravaTokensFixtures
 
   # def exchange_access_token(opts) do
   #   _code = opts[:code]
@@ -27,7 +26,7 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
   # end
 
   # test "callback with valid token", %{conn: conn} do
-  #   params = %{"code" => "66e1c4202275d071eced", "state" => "valid"}
+  #   params = %{"code" => "91ec7d9d3b505239bebf98d2285b80deb7bddfd7"}
 
   #   assert Participants.get_participant_by_strava_id("2430215") == nil
 
