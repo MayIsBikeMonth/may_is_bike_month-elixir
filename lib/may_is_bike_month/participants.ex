@@ -7,6 +7,7 @@ defmodule MayIsBikeMonth.Participants do
   alias MayIsBikeMonth.Repo
 
   alias MayIsBikeMonth.Participants.Participant
+  alias MayIsBikeMonth.Participants.StravaToken
 
   @doc """
   Returns the list of participants.
@@ -53,17 +54,87 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   @doc """
-  Creates a participant and a strava_token
-  """
-  def register_strava_participant(attrs \\ %{}) do
-    participant =
-      get_participant_by_strava_id(attrs["strava_id"]) ||
-        %Participant{}
-        |> Participant.changeset(attrs)
-        |> Repo.insert()
-  end
+  Returns the list of strava_tokens.
 
   ## Examples
+
+      iex> list_strava_tokens()
+      [%Participant{}, ...]
+
+  """
+  def list_strava_tokens(opts) do
+    from(st in StravaToken,
+      limit: ^Keyword.fetch!(opts, :limit),
+      order_by: [desc: :id]
+    )
+    |> Repo.all()
+    |> Enum.map(&strava_token_with_expired/1)
+  end
+
+  def list_strava_tokens, do: list_strava_tokens(limit: 100)
+
+  def strava_token_for_participant(%Participant{} = participant) do
+    from(StravaToken, order_by: [desc: :id])
+    |> where(participant_id: ^participant.id)
+    |> first()
+    |> Repo.one()
+    |> strava_token_with_expired()
+  end
+
+  @doc """
+  Creates a strava_token
+
+  """
+  def create_strava_token(participant_id, access, refresh, expires_at, meta) do
+    %StravaToken{}
+    |> StravaToken.changeset(%{
+      access_token: access,
+      refresh_token: refresh,
+      expires_at: DateTime.from_unix!(expires_at),
+      strava_meta: meta,
+      participant_id: participant_id
+    })
+    |> Repo.insert()
+  end
+
+  def participant_from_strava_token_response(access, refresh, expires_at, meta) do
+    {:ok, participant} = create_or_update_participant(meta)
+    {:ok, _} = create_strava_token(participant.id, access, refresh, expires_at, meta)
+    {:ok, participant}
+  end
+
+  def participant_from_strava_token_response(token_response) do
+    %{
+      access_token: access,
+      refresh_token: refresh,
+      expires_at: expires_at,
+      athlete: meta,
+      token_type: "Bearer",
+      expires_in: _
+    } = token_response
+
+    participant_from_strava_token_response(access, refresh, expires_at, meta)
+  end
+
+  @doc """
+  Finds and updates or creates a participant using the strava data that is passed in
+  This is how all participants should be created!
+  """
+  def create_or_update_participant(strava_data) do
+    attrs = %{
+      strava_id: to_string(strava_data["id"]),
+      first_name: strava_data["firstname"],
+      last_name: strava_data["lastname"],
+      strava_username: strava_data["username"],
+      image_url: strava_data["profile"]
+    }
+
+    if participant = get_participant_by_strava_id(attrs.strava_id) do
+      update_participant(participant, attrs)
+    else
+      create_participant(attrs)
+    end
+  end
 
   @doc """
   Creates a participant.
@@ -128,5 +199,10 @@ defmodule MayIsBikeMonth.Participants do
   """
   def change_participant(%Participant{} = participant, attrs \\ %{}) do
     Participant.changeset(participant, attrs)
+  end
+
+  # Virtual attribute setting!
+  defp strava_token_with_expired(%StravaToken{} = strava_token) do
+    %{strava_token | expired: DateTime.utc_now() > strava_token.expires_at}
   end
 end

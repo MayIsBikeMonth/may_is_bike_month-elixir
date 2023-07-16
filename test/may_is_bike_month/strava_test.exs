@@ -1,7 +1,7 @@
 defmodule MayIsBikeMonth.StravaTest do
   use ExUnit.Case, async: true
 
-  alias MayIsBikeMonth.Strava
+  # alias MayIsBikeMonth.Strava
 
   # TODO:
   # - Add betamax

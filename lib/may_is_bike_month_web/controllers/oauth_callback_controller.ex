@@ -4,18 +4,17 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
 
   alias MayIsBikeMonth.Participants
 
-  def new(conn, %{"provider" => "strava", "code" => code, "state" => state}) do
+  def new(conn, %{"provider" => "strava", "code" => code}) do
     client = strava_client(conn)
 
-    with {:ok, info} <- client.exchange_access_token(code: code, state: state),
-         %{info: info, primary_email: primary, emails: emails, token: token} = info,
-         {:ok, participant} <- Participants.create_participant(primary, info, emails, token) do
+    with {:ok, info} <- client.exchange_access_token(code: code),
+         {:ok, participant} <- Participants.participant_from_strava_token_response(info) do
       conn
       |> put_flash(:info, "Welcome #{participant.display_name}")
-      |> MayIsBikeMonthWeb.PartcipantAuth.log_in_participant(participant)
+      |> MayIsBikeMonthWeb.ParticipantAuth.log_in_participant(participant)
     else
       {:error, %Ecto.Changeset{} = changeset} ->
-        Logger.debug("failed GitHub insert #{inspect(changeset.errors)}")
+        Logger.debug("failed Strava insert #{inspect(changeset.errors)}")
 
         conn
         |> put_flash(
@@ -25,10 +24,10 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
         |> redirect(to: "/")
 
       {:error, reason} ->
-        Logger.debug("failed GitHub exchange #{inspect(reason)}")
+        Logger.debug("failed Strava exchange #{inspect(reason)}")
 
         conn
-        |> put_flash(:error, "We were unable to contact GitHub. Please try again later")
+        |> put_flash(:error, "We were unable to contact Strava. Please try again later")
         |> redirect(to: "/")
     end
   end
@@ -38,7 +37,7 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
   end
 
   def sign_out(conn, _) do
-    MayIsBikeMonthWeb.PartcipantAuth.log_out_participant(conn)
+    MayIsBikeMonthWeb.ParticipantAuth.log_out_participant(conn)
   end
 
   defp strava_client(conn) do

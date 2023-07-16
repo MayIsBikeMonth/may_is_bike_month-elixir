@@ -7,7 +7,6 @@ defmodule MayIsBikeMonth.Participants.Participant do
     field :first_name, :string
     field :image_url, :string
     field :last_name, :string
-    field :strava_auth, :map
     field :strava_id, :string
     field :strava_username, :string
 
@@ -26,13 +25,11 @@ defmodule MayIsBikeMonth.Participants.Participant do
       :last_name,
       :strava_username,
       :strava_id,
-      :image_url,
-      :strava_auth
+      :image_url
     ])
     |> validate_required([
       :strava_username,
-      :strava_id,
-      :image_url
+      :strava_id
     ])
     |> with_display_name()
     |> unique_constraint(:strava_id)

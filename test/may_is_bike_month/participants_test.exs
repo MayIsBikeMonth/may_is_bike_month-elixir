@@ -7,12 +7,9 @@ defmodule MayIsBikeMonth.ParticipantsTest do
     alias MayIsBikeMonth.Participants.Participant
 
     import MayIsBikeMonth.ParticipantsFixtures
+    import MayIsBikeMonth.StravaTokensFixtures
 
     @invalid_attrs %{
-      display_name: nil,
-      first_name: nil,
-      image_url: nil,
-      last_name: nil,
       strava_id: nil,
       strava_username: nil
     }
@@ -29,6 +26,82 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       assert Participants.get_participant_by_strava_id(participant.strava_id) == participant
       # It also works when passed an integer, since that's how they come in'
       assert Participants.get_participant_by_strava_id(2_430_215) == participant
+    end
+
+    test "list_strava_tokens/0 returns all strava_tokens" do
+      strava_token = strava_token_fixture()
+      assert strava_token.expired == false
+      assert Participants.list_strava_tokens() == [strava_token]
+    end
+
+    test "participant_from_strava_token_response/4 creates a strava_token" do
+      {:ok, participant} =
+        Participants.participant_from_strava_token_response(example_strava_token_response())
+
+      assert Enum.count(Participants.list_participants()) == 1
+      assert Enum.count(Participants.list_strava_tokens()) == 1
+
+      strava_token = Participants.strava_token_for_participant(participant)
+      assert strava_token.participant_id == participant.id
+      assert strava_token.expired == false
+
+      # Create another token, test that the newest one is returned
+      {:ok, _} =
+        Participants.participant_from_strava_token_response(example_strava_token_response())
+
+      assert Enum.count(Participants.list_participants()) == 1
+      assert Enum.count(Participants.list_strava_tokens()) == 2
+      strava_token2 = Participants.strava_token_for_participant(participant)
+      assert strava_token2.participant_id == participant.id
+      assert strava_token2.id > strava_token.id
+    end
+
+    test "participant_from_strava_token_response/4 creates a strava_token for an existing participant" do
+      participant = participant_fixture()
+      assert Participants.list_strava_tokens() == []
+      strava_token_attrs = example_strava_token_response(strava_id: participant.strava_id)
+
+      {:ok, participant} = Participants.participant_from_strava_token_response(strava_token_attrs)
+
+      assert Enum.count(Participants.list_participants()) == 1
+
+      assert Enum.count(Participants.list_strava_tokens()) == 1
+
+      strava_token = Enum.at(Participants.list_strava_tokens(), 0)
+      assert strava_token.participant_id == participant.id
+      assert strava_token.expired == false
+    end
+
+    test "create_or_update_participant/1 with valid data creates a participant and updates the participant" do
+      assert {:ok, %Participant{} = participant} =
+               Participants.create_or_update_participant(%{
+                 "id" => "999",
+                 "username" => "some strava_username"
+               })
+
+      assert participant.display_name == "some strava_username"
+      assert participant.strava_id == "999"
+
+      assert {:ok, %Participant{} = participant_again} =
+               Participants.create_or_update_participant(%{
+                 "id" => "999",
+                 "username" => "New strava_username",
+                 "firstname" => "New",
+                 "lastname" => "Name"
+               })
+
+      assert Enum.count(Participants.list_participants()) == 1
+      assert participant_again.strava_username == "New strava_username"
+      assert participant_again.first_name == "New"
+      assert participant_again.last_name == "Name"
+
+      assert {:ok, %Participant{} = _} =
+               Participants.create_or_update_participant(%{
+                 "id" => "998",
+                 "username" => "new"
+               })
+
+      assert Enum.count(Participants.list_participants()) == 2
     end
 
     test "create_participant/1 with valid data creates a participant" do
