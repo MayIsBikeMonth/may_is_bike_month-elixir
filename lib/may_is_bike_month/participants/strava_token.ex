@@ -17,7 +17,14 @@ defmodule MayIsBikeMonth.Participants.StravaToken do
   @doc false
   def changeset(strava_token, attrs) do
     strava_token
-    |> cast(attrs, [:access_token, :refresh_token, :expires_at, :strava_meta, :participant_id])
+    |> cast(attrs, [
+      :access_token,
+      :refresh_token,
+      :expires_at,
+      :strava_meta,
+      :participant_id,
+      :error_response
+    ])
     |> validate_required([:access_token, :expires_at, :participant_id])
     |> with_expired()
   end

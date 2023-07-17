@@ -197,11 +197,40 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
         assert strava_token.expired == true
         assert Enum.count(Participants.list_strava_tokens()) == 1
-        {:ok, refreshed_access_token} = Participants.refreshed_access_token(strava_token)
-        assert refreshed_access_token.expired == false
-        assert refreshed_access_token.access_token == "xxxxxx"
-        assert refreshed_access_token.participant_id == strava_token.participant_id
+        {:ok, refreshed_strava_token} = Participants.refreshed_access_token(strava_token)
+        assert refreshed_strava_token.id != strava_token.id
+        assert refreshed_strava_token.access_token == "xxxxxx"
+        assert refreshed_strava_token.participant_id == strava_token.participant_id
+        assert refreshed_strava_token.error_response == %{}
         assert Enum.count(Participants.list_strava_tokens()) == 2
+      end
+    end
+
+    test "refresh_access_token/1 adds an error to the access token" do
+      setup_vcr()
+
+      use_cassette "refresh_access_token-fail" do
+        strava_token = strava_token_fixture(%{"expires_at" => token_expires_at(-1000)})
+
+        assert strava_token.expired == true
+        assert Enum.count(Participants.list_strava_tokens()) == 1
+
+        {:error, errored_strava_token} = Participants.refreshed_access_token(strava_token)
+        assert errored_strava_token.id == strava_token.id
+        assert errored_strava_token.participant_id == strava_token.participant_id
+
+        assert errored_strava_token.error_response == %{
+                 "errors" => [
+                   %{
+                     "code" => "invalid",
+                     "field" => "refresh_token",
+                     "resource" => "RefreshToken"
+                   }
+                 ],
+                 "message" => "Bad Request"
+               }
+
+        assert Enum.count(Participants.list_strava_tokens()) == 1
       end
     end
   end

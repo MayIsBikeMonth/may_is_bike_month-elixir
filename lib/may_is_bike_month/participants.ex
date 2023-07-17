@@ -136,20 +136,26 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   def refreshed_access_token(%StravaToken{} = strava_token) do
-    {:ok, response} = Strava.refresh_access_token(strava_token.refresh_token)
+    case Strava.refresh_access_token(strava_token.refresh_token) do
+      {:ok, response} ->
+        %{
+          "access_token" => access,
+          "refresh_token" => refresh,
+          "expires_at" => expires_at,
+          "token_type" => "Bearer",
+          "expires_in" => _
+        } = response
 
-    if response do
-      %{
-        "access_token" => access,
-        "refresh_token" => refresh,
-        "expires_at" => expires_at,
-        "token_type" => "Bearer",
-        "expires_in" => _
-      } = response
+        create_strava_token(strava_token.participant_id, access, refresh, expires_at)
 
-      create_strava_token(strava_token.participant_id, access, refresh, expires_at)
-    else
-      {:error, "Unable to refresh access token"}
+      {:error, response} ->
+        case add_error_to_strava_token(strava_token, response) do
+          {:ok, updated_token} ->
+            {:error, updated_token}
+
+          {:error, updated_error} ->
+            {:error, updated_error}
+        end
     end
   end
 
@@ -186,6 +192,15 @@ defmodule MayIsBikeMonth.Participants do
   def update_participant(%Participant{} = participant, attrs) do
     participant
     |> Participant.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Updates a strava_token.
+  """
+  def add_error_to_strava_token(%StravaToken{} = strava_token, error_response) do
+    strava_token
+    |> StravaToken.changeset(%{error_response: error_response})
     |> Repo.update()
   end
 

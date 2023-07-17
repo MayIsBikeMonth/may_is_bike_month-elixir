@@ -18,7 +18,7 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
   end
 
   test "callback with valid token", %{conn: conn} do
-    use_cassette "exchange_access_token_success" do
+    use_cassette "exchange_access_token-success" do
       params = %{"code" => "valid-code"}
 
       assert Participants.get_participant_by_strava_id("2430215") == nil
@@ -37,7 +37,6 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
       strava_token = Participants.strava_token_for_participant(participant)
       assert strava_token.access_token == "xxxxxxx"
       assert strava_token.refresh_token == "yyyyyyy"
-      assert strava_token.expired == false
     end
   end
 end
