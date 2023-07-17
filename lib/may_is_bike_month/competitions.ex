@@ -159,9 +159,8 @@ defmodule MayIsBikeMonth.Competitions do
     %{competition | periods: competition_periods(competition)}
   end
 
-  def competition_active?(%Competition{} = competition) do
-    competition_active?(competition.start_date, competition.end_date)
-  end
+  def competition_active?(%Competition{} = competition),
+    do: competition_active?(competition.start_date, competition.end_date)
 
   def competition_active?(start_date, end_date) do
     today = Date.utc_today()
