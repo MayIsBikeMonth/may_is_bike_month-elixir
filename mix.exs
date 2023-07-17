@@ -45,6 +45,7 @@ defmodule MayIsBikeMonth.MixProject do
       {:jason, "~> 1.2"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:number, "~> 1.0.1"},
+      {:oban, "~> 2.14"},
       {:phoenix, "~> 1.7.6"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_html, "~> 3.3"},

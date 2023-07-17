@@ -20,6 +20,11 @@ config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint,
   pubsub_server: MayIsBikeMonth.PubSub,
   live_view: [signing_salt: "V2Bd6lRr"]
 
+config :may_is_bike_month, Oban,
+  repo: MayIsBikeMonth.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

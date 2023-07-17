@@ -14,6 +14,7 @@ defmodule MayIsBikeMonth.Application do
       MayIsBikeMonth.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: MayIsBikeMonth.PubSub},
+      {Oban, Application.fetch_env!(:may_is_bike_month, Oban)},
       # Start Finch
       {Finch, name: MayIsBikeMonth.Finch},
       # Start the Endpoint (http/https)

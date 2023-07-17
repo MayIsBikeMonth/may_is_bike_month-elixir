@@ -18,6 +18,9 @@ config :may_is_bike_month, MayIsBikeMonth.Repo,
 
 config :honeybadger, environment_name: :dev
 
+# Background jobs in test
+config :may_is_bike_month, Oban, testing: :inline
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint,
