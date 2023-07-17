@@ -41,6 +41,7 @@ defmodule MayIsBikeMonth.MixProject do
       {:floki, ">= 0.30.0", only: :test},
       {:finch, "~> 0.13"},
       {:httpoison, "~> 2.0"},
+      {:honeybadger, "~> 0.16"},
       {:jason, "~> 1.2"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:number, "~> 1.0.1"},
