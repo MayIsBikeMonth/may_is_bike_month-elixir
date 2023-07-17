@@ -10,7 +10,8 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
 
     with {:ok, info} <- client.exchange_access_token(code: code),
          {:ok, participant} <- Participants.participant_from_strava_token_response(info) do
-      # TODO: Maybe only do this happen if the current_competition is active ?
+      # Maybe only do this if current_competition.active ?
+      # For now, to get things rolling - just making it happen
       if competition do
         MayIsBikeMonth.CompetitionParticipants.create_competition_participant(%{
           competition_id: competition.id,
