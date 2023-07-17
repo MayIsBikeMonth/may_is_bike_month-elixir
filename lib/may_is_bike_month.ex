@@ -9,16 +9,6 @@ defmodule MayIsBikeMonth do
 
   @doc """
   Looks up `Application` config or raises if keyspace is not configured.
-
-  ## Examples
-
-      config :live_beats, :files, [
-        uploads_dir: Path.expand("../priv/uploads", __DIR__),
-        host: [scheme: "http", host: "localhost", port: 4000],
-      ]
-
-      iex> LiveBeats.config([:files, :uploads_dir])
-      iex> LiveBeats.config([:files, :host, :port])
   """
   def config([main_key | rest] = keyspace) when is_list(keyspace) do
     main = Application.fetch_env!(:may_is_bike_month, main_key)
