@@ -14,7 +14,6 @@ defmodule MayIsBikeMonth.ParticipantsFixtures do
         first_name: "some first_name",
         image_url: "some image_url",
         last_name: "some last_name",
-        strava_auth: %{},
         strava_id: "2430215",
         strava_username: "some strava_username"
       })

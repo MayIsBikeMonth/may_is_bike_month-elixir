@@ -1,3 +1,28 @@
+<ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
+  <%= if @current_participant do %>
+    <li class="text-[0.8125rem] leading-6 text-zinc-900">
+      <%= @current_participant.display_name %>
+    </li>
+    <li>
+      <.link
+        href={~p"/signout"}
+        method="delete"
+        class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+      >
+        Log out
+      </.link>
+    </li>
+  <% else %>
+    <li>
+      <.link
+        href={MayIsBikeMonth.Strava.authorize_url()}
+        class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+      >
+        Log in
+      </.link>
+    </li>
+  <% end %>
+</ul>
 <main class="px-4 pb-20 pt-4">
   <div class="w-full">
     <.flash_group flash={@flash} />

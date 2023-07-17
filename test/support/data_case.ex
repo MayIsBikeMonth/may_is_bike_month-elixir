@@ -55,4 +55,23 @@ defmodule MayIsBikeMonth.DataCase do
       end)
     end)
   end
+
+  def setup_vcr do
+    ExVCR.Config.cassette_library_dir("test/support/vcr_cassettes")
+
+    ExVCR.Config.filter_sensitive_data(
+      MayIsBikeMonth.config([:strava, :client_secret]),
+      "STRAVA_SECRET"
+    )
+
+    ExVCR.Config.cassette_library_dir("test/support/vcr_cassettes")
+
+    ExVCR.Config.filter_sensitive_data(
+      MayIsBikeMonth.config([:strava, :client_secret]),
+      "STRAVA_SECRET"
+    )
+
+    HTTPoison.start()
+    :ok
+  end
 end

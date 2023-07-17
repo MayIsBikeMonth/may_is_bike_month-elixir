@@ -1,0 +1,41 @@
+[
+  {
+    "request": {
+      "body": "{\"client_id\":\"4692\",\"client_secret\":\"STRAVA_SECRET\",\"code\":\"e8ab449eb83bd71b3ddc81d0a7a5c77b7ad0685f\"}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "https://www.strava.com/oauth/token?grant_type=authorization_code"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"message\":\"Bad Request\",\"errors\":[{\"resource\":\"AuthorizationCode\",\"field\":\"code\",\"code\":\"invalid\"}]}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Sun, 16 Jul 2023 21:55:03 GMT",
+        "Via": "1.1 linkerd, 1.1 linkerd, 1.1 773f6821b053a13ecc63d604feb07cb4.cloudfront.net (CloudFront)",
+        "Vary": "Origin",
+        "Server": "nginx/1.21.3",
+        "Status": "400 Bad Request",
+        "X-Request-Id": "3f4162ab-f818-44e6-ace3-61fd2b0821b0",
+        "Cache-Control": "no-cache",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Download-Options": "noopen",
+        "X-Content-Type-Options": "nosniff",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Cache": "Error from cloudfront",
+        "X-Amz-Cf-Pop": "SFO53-P5",
+        "X-Amz-Cf-Id": "Po_hN43JhiHcn3AqZqRXnHvApPwThOzP6WVnZwDdKt9VBm63K5j8cQ=="
+      },
+      "status_code": 400,
+      "type": "ok"
+    }
+  }
+]
