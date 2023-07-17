@@ -31,7 +31,7 @@ if System.get_env("PHX_SERVER") do
 end
 
 config :may_is_bike_month, :strava,
-  client_id: System.get_env("STRAVA_CLIENT_ID") || "4692",
+  client_id: System.get_env("STRAVA_CLIENT_ID"),
   client_secret: System.get_env("STRAVA_SECRET"),
   admin_ids: System.get_env("STRAVA_ADMIN_IDS"),
   redirect_domain: System.get_env("BASE_URL")

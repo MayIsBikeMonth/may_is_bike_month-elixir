@@ -9,6 +9,7 @@ defmodule MayIsBikeMonth.Strava do
   end
 
   defp fetch_exchange_response(code) do
+    HTTPoison.start()
     body = Jason.encode!(%{code: code, client_secret: secret(), client_id: client_id()})
 
     tuple_response(

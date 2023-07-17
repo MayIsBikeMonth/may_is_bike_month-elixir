@@ -15,6 +15,9 @@ on:
 # Sets the ENV `MIX_ENV` to `test` for running tests
 env:
   MIX_ENV: test
+  STRAVA_CLIENT_ID: "4692"
+  STRAVA_SECRET: "xxxx"
+  STRAVA_ADMIN_IDS: "2430215"
 
 permissions:
   contents: read
