@@ -19,13 +19,13 @@ defmodule MayIsBikeMonth.Competitions do
   """
   def list_competitions do
     Repo.all(Competition)
-    |> Enum.map(&with_periods/1)
+    |> Enum.map(&with_virtual_attributes/1)
   end
 
   def current_competition do
     Competition
     |> Repo.one()
-    |> with_periods()
+    |> with_virtual_attributes()
   end
 
   @doc """
@@ -44,7 +44,7 @@ defmodule MayIsBikeMonth.Competitions do
   """
   def get_competition!(id) do
     Repo.get!(Competition, id)
-    |> with_periods()
+    |> with_virtual_attributes()
   end
 
   @doc """
@@ -147,9 +147,29 @@ defmodule MayIsBikeMonth.Competitions do
     Enum.max([monday, Date.beginning_of_month(date)], Date)
   end
 
-  defp with_periods(nil), do: nil
+  defp with_virtual_attributes(nil), do: nil
+
+  defp with_virtual_attributes(%Competition{} = competition) do
+    competition
+    |> with_periods()
+    |> with_active()
+  end
 
   defp with_periods(%Competition{} = competition) do
     %{competition | periods: competition_periods(competition)}
+  end
+
+  def competition_active?(%Competition{} = competition),
+    do: competition_active?(competition.start_date, competition.end_date)
+
+  def competition_active?(start_date, end_date) do
+    today = Date.utc_today()
+
+    start_date && end_date && Date.compare(today, start_date) != :lt &&
+      Date.compare(today, end_date) != :gt
+  end
+
+  defp with_active(%Competition{} = competition) do
+    %{competition | active: competition_active?(competition)}
   end
 end

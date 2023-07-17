@@ -97,17 +97,19 @@ defmodule MayIsBikeMonth.CompetitionsTest do
 
     test "update_competition/2 with valid data updates the competition" do
       competition = competition_fixture()
+      assert competition.active == false
 
       update_attrs = %{
         display_name: "some updated display_name",
-        end_date: ~D[2023-05-31],
-        start_date: ~D[2023-05-01]
+        end_date: Date.utc_today(),
+        start_date: Date.beginning_of_month(Date.utc_today())
       }
 
       assert {:ok, %Competition{} = competition} =
                Competitions.update_competition(competition, update_attrs)
 
       assert competition.display_name == "some updated display_name"
+      assert competition.active == true
     end
 
     test "update_competition/2 with invalid data returns error changeset" do

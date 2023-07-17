@@ -9,6 +9,8 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
 
     with {:ok, info} <- client.exchange_access_token(code: code),
          {:ok, participant} <- Participants.participant_from_strava_token_response(info) do
+      create_competition_participant(participant)
+
       conn
       |> put_flash(:info, "Welcome #{participant.display_name}")
       |> MayIsBikeMonthWeb.ParticipantAuth.log_in_participant(participant)
@@ -42,5 +44,18 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
 
   defp strava_client(conn) do
     conn.assigns[:strava_client] || MayIsBikeMonth.Strava
+  end
+
+  defp create_competition_participant(participant) do
+    competition = MayIsBikeMonth.Competitions.current_competition()
+    # Maybe only do this if current_competition.active ?
+    # For now, to get things rolling - just making it happen
+    if competition do
+      MayIsBikeMonth.CompetitionParticipants.create_competition_participant(%{
+        competition_id: competition.id,
+        participant_id: participant.id,
+        include_in_competition: true
+      })
+    end
   end
 end
