@@ -7,6 +7,7 @@ defmodule MayIsBikeMonth.Repo.Migrations.CreateStravaTokens do
       add :refresh_token, :string
       add :expires_at, :utc_datetime
       add :strava_meta, :map
+      add :error_response, :map
       add :participant_id, references(:participants, on_delete: :nothing)
 
       timestamps()

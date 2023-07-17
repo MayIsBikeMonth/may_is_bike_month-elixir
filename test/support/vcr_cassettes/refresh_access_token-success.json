@@ -1,0 +1,42 @@
+[
+  {
+    "request": {
+      "body": "{\"client_id\":\"4692\",\"client_secret\":\"STRAVA_SECRET\",\"refresh_token\":\"yyyyyyy\"}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "https://www.strava.com/oauth/token?grant_type=refresh_token"
+    },
+    "response": {
+      "binary": false,
+      "body": "{\"token_type\":\"Bearer\",\"access_token\":\"xxxxxx\",\"expires_at\":1689561889,\"expires_in\":11735,\"refresh_token\":\"yyyyyyy\"}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Sun, 16 Jul 2023 23:29:14 GMT",
+        "Via": "1.1 linkerd, 1.1 linkerd, 1.1 545a028fb877bcb33ee64ef7fbf07ec0.cloudfront.net (CloudFront)",
+        "ETag": "W/\"706c2b4f3e2b8cc37e495f5273144328\"",
+        "Vary": "Origin",
+        "Server": "nginx/1.21.3",
+        "Status": "200 OK",
+        "X-Request-Id": "025799e3-ccb9-4429-97c2-9995b45bbf38",
+        "Cache-Control": "max-age=0, private, must-revalidate",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Download-Options": "noopen",
+        "X-Content-Type-Options": "nosniff",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-Cache": "Miss from cloudfront",
+        "X-Amz-Cf-Pop": "SFO53-P5",
+        "X-Amz-Cf-Id": "O2FAal_OyyfJX6ici-PB5rTFTB6J35PqEfyVQU1RZksLuixROPLHEQ=="
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

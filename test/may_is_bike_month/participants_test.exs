@@ -186,5 +186,23 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       participant = participant_fixture()
       assert %Ecto.Changeset{} = Participants.change_participant(participant)
     end
+
+    use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
+
+    test "refresh_access_token/1 creates a new access token" do
+      setup_vcr()
+
+      use_cassette "refresh_access_token-success" do
+        strava_token = strava_token_fixture(%{"expires_at" => token_expires_at(-1000)})
+
+        assert strava_token.expired == true
+        assert Enum.count(Participants.list_strava_tokens()) == 1
+        {:ok, refreshed_access_token} = Participants.refreshed_access_token(strava_token)
+        assert refreshed_access_token.expired == false
+        assert refreshed_access_token.access_token == "xxxxxx"
+        assert refreshed_access_token.participant_id == strava_token.participant_id
+        assert Enum.count(Participants.list_strava_tokens()) == 2
+      end
+    end
   end
 end

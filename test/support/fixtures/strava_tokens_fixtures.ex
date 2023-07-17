@@ -53,30 +53,27 @@ defmodule MayIsBikeMonth.StravaTokensFixtures do
   Generate a competition_participant.
   """
   def strava_token_fixture(attrs \\ %{}) do
+    strava_id = attrs[:strava_id] || attrs["strava_id"] || @default_strava_id
+
     participant_id =
-      if attrs[:participant_id] do
-        attrs[:participant_id]
+      if attrs[:participant_id] || attrs["participant_id"] do
+        attrs[:participant_id] || attrs["participant_id"]
       else
-        participant_fixture(strava_id: attrs[:strava_id] || @default_strava_id)
+        participant_fixture(strava_id: strava_id)
         |> Map.get(:id)
       end
 
-    %{
-      "access_token" => access,
-      "refresh_token" => refresh,
-      "expires_at" => expires_at,
-      "athlete" => meta,
-      "token_type" => "Bearer",
-      "expires_in" => _
-    } = example_strava_token_response(strava_id: attrs[:strava_id] || @default_strava_id)
+    strava_response =
+      attrs
+      |> Enum.into(example_strava_token_response(strava_id: strava_id))
 
     {:ok, strava_token} =
       MayIsBikeMonth.Participants.create_strava_token(
         participant_id,
-        access,
-        refresh,
-        expires_at,
-        meta
+        strava_response["access_token"],
+        strava_response["refresh_token"],
+        strava_response["expires_at"],
+        strava_response["athlete"]
       )
 
     strava_token

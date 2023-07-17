@@ -8,6 +8,7 @@ defmodule MayIsBikeMonth.Participants.StravaToken do
     field :expired, :boolean, default: false, virtual: true
     field :refresh_token, :string
     field :strava_meta, :map, default: %{}
+    field :error_response, :map, default: %{}
     belongs_to :participant, MayIsBikeMonth.Participants.Participant
 
     timestamps()

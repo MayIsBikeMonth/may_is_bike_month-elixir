@@ -6,8 +6,7 @@ defmodule MayIsBikeMonth.Participants do
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
 
-  alias MayIsBikeMonth.Participants.Participant
-  alias MayIsBikeMonth.Participants.StravaToken
+  alias MayIsBikeMonth.{Participants.Participant, Participants.StravaToken, Strava}
 
   @doc """
   Returns the list of participants.
@@ -85,7 +84,7 @@ defmodule MayIsBikeMonth.Participants do
   Creates a strava_token
 
   """
-  def create_strava_token(participant_id, access, refresh, expires_at, meta) do
+  def create_strava_token(participant_id, access, refresh, expires_at, meta \\ %{}) do
     %StravaToken{}
     |> StravaToken.changeset(%{
       access_token: access,
@@ -133,6 +132,24 @@ defmodule MayIsBikeMonth.Participants do
       update_participant(participant, attrs)
     else
       create_participant(attrs)
+    end
+  end
+
+  def refreshed_access_token(%StravaToken{} = strava_token) do
+    {:ok, response} = Strava.refresh_access_token(strava_token.refresh_token)
+
+    if response do
+      %{
+        "access_token" => access,
+        "refresh_token" => refresh,
+        "expires_at" => expires_at,
+        "token_type" => "Bearer",
+        "expires_in" => _
+      } = response
+
+      create_strava_token(strava_token.participant_id, access, refresh, expires_at)
+    else
+      {:error, "Unable to refresh access token"}
     end
   end
 

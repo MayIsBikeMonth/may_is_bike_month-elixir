@@ -9,10 +9,34 @@ defmodule MayIsBikeMonth.Strava do
   end
 
   defp fetch_exchange_response(code) do
-    url = "https://www.strava.com/oauth/token?grant_type=authorization_code"
     body = Jason.encode!(%{code: code, client_secret: secret(), client_id: client_id()})
-    resp = HTTPoison.post(url, body, [{"Content-Type", "application/json"}])
 
+    tuple_response(
+      HTTPoison.post(token_url("authorization_code"), body, [{"Content-Type", "application/json"}])
+    )
+  end
+
+  def refresh_access_token(refresh_token) do
+    body =
+      Jason.encode!(%{
+        refresh_token: refresh_token,
+        client_secret: secret(),
+        client_id: client_id()
+      })
+
+    tuple_response(
+      HTTPoison.post(token_url("refresh_token"), body, [{"Content-Type", "application/json"}])
+    )
+  end
+
+  defp token_url(grant_type), do: "https://www.strava.com/oauth/token?grant_type=#{grant_type}"
+
+  defp client_id, do: MayIsBikeMonth.config([:strava, :client_id])
+  defp secret, do: MayIsBikeMonth.config([:strava, :client_secret])
+  defp redirect_uri, do: "#{redirect_domain()}/oauth/callbacks/strava"
+  defp redirect_domain, do: MayIsBikeMonth.config([:strava, :redirect_domain])
+
+  defp tuple_response(resp) do
     case resp do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, Jason.decode!(body)}
@@ -21,51 +45,7 @@ defmodule MayIsBikeMonth.Strava do
         {:error, Jason.decode!(body)}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        reason
+        {:error, reason}
     end
   end
-
-  defp client_id, do: MayIsBikeMonth.config([:strava, :client_id])
-  defp secret, do: MayIsBikeMonth.config([:strava, :client_secret])
-  defp redirect_uri, do: "#{redirect_domain()}/oauth/callbacks/strava"
-  defp redirect_domain, do: MayIsBikeMonth.config([:strava, :redirect_domain])
-
-  # defp http(host, method, path, query, headers, body \\ "") do
-  #   {:ok, conn} = Mint.HTTP.connect(:https, host, 443)
-
-  #   path = path <> "?" <> URI.encode_query([{:client_id, client_id()} | query])
-
-  #   {:ok, conn, ref} =
-  #     Mint.HTTP.request(
-  #       conn,
-  #       method,
-  #       path,
-  #       headers,
-  #       body
-  #     )
-
-  #   receive_resp(conn, ref, nil, nil, false)
-  # end
-
-  # defp receive_resp(conn, ref, status, data, done?) do
-  #   receive do
-  #     message ->
-  #       {:ok, conn, responses} = Mint.HTTP.stream(conn, message)
-
-  #       {new_status, new_data, done?} =
-  #         Enum.reduce(responses, {status, data, done?}, fn
-  #           {:status, ^ref, new_status}, {_old_status, data, done?} -> {new_status, data, done?}
-  #           {:headers, ^ref, _headers}, acc -> acc
-  #           {:data, ^ref, binary}, {status, nil, done?} -> {status, binary, done?}
-  #           {:data, ^ref, binary}, {status, data, done?} -> {status, data <> binary, done?}
-  #           {:done, ^ref}, {status, data, _done?} -> {status, data, true}
-  #         end)
-
-  #       cond do
-  #         done? and new_status == 200 -> {:ok, new_data}
-  #         done? -> {:error, {new_status, new_data}}
-  #         !done? -> receive_resp(conn, ref, new_status, new_data, done?)
-  #       end
-  #   end
-  # end
 end
