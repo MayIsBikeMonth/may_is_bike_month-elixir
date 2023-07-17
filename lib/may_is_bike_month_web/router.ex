@@ -1,5 +1,6 @@
 defmodule MayIsBikeMonthWeb.Router do
   use MayIsBikeMonthWeb, :router
+  use Honeybadger.Plug
 
   import MayIsBikeMonthWeb.ParticipantAuth
 

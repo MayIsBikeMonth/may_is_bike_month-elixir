@@ -8,6 +8,8 @@ import Config
 config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :honeybadger, environment_name: :prod
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: MayIsBikeMonth.Finch
 
