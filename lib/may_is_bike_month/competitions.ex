@@ -159,14 +159,18 @@ defmodule MayIsBikeMonth.Competitions do
     %{competition | periods: competition_periods(competition)}
   end
 
-  defp with_active(%Competition{} = competition) do
+  def competition_active?(%Competition{} = competition) do
+    competition_active?(competition.start_date, competition.end_date)
+  end
+
+  def competition_active?(start_date, end_date) do
     today = Date.utc_today()
 
-    %{
-      competition
-      | active:
-          Date.compare(today, competition.start_date) != :lt &&
-            Date.compare(today, competition.end_date) != :gt
-    }
+    start_date && end_date && Date.compare(today, start_date) != :lt &&
+      Date.compare(today, end_date) != :gt
+  end
+
+  defp with_active(%Competition{} = competition) do
+    %{competition | active: competition_active?(competition)}
   end
 end
