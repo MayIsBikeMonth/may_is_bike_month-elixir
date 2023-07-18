@@ -30,7 +30,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
     test "list_strava_tokens/0 returns all strava_tokens" do
       strava_token = strava_token_fixture()
-      assert strava_token.expired == false
+      assert strava_token.active == true
       assert Participants.list_strava_tokens() == [strava_token]
     end
 
@@ -43,7 +43,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
       strava_token = Participants.strava_token_for_participant(participant)
       assert strava_token.participant_id == participant.id
-      assert strava_token.expired == false
+      assert strava_token.active == true
 
       # Create another token, test that the newest one is returned
       {:ok, _} =
@@ -69,7 +69,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
       strava_token = Enum.at(Participants.list_strava_tokens(), 0)
       assert strava_token.participant_id == participant.id
-      assert strava_token.expired == false
+      assert strava_token.active == true
     end
 
     test "create_or_update_participant/1 with valid data creates a participant and updates the participant" do
@@ -195,7 +195,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       use_cassette "refresh_access_token-success" do
         strava_token = strava_token_fixture(%{"expires_at" => token_expires_at(-1000)})
 
-        assert strava_token.expired == true
+        assert strava_token.active == false
         assert Enum.count(Participants.list_strava_tokens()) == 1
         {:ok, refreshed_strava_token} = Participants.refreshed_access_token(strava_token)
         assert refreshed_strava_token.id != strava_token.id
@@ -212,7 +212,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       use_cassette "refresh_access_token-fail" do
         strava_token = strava_token_fixture(%{"expires_at" => token_expires_at(-1000)})
 
-        assert strava_token.expired == true
+        assert strava_token.active == false
         assert Enum.count(Participants.list_strava_tokens()) == 1
 
         {:error, errored_strava_token} = Participants.refreshed_access_token(strava_token)

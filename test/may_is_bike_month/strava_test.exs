@@ -42,7 +42,7 @@ defmodule MayIsBikeMonth.StravaTest do
           })
 
         assert strava_token.access_token == "xxxxxx"
-        assert strava_token.expired == true
+        assert strava_token.active == false
         {:ok, new_token_response} = Strava.refresh_access_token(strava_token.refresh_token)
         assert new_token_response["access_token"] == "xxxxxx"
         assert new_token_response["refresh_token"] == strava_token.refresh_token
@@ -59,10 +59,15 @@ defmodule MayIsBikeMonth.StravaTest do
           })
 
         assert strava_token.access_token == "xxxxxx"
-        assert strava_token.expired == true
+        assert strava_token.active == false
         {:error, error_response} = Strava.refresh_access_token(strava_token.refresh_token)
         assert(error_response["message"] == "Bad Request")
       end
+    end
+  end
+
+  describe "get_activities" do
+    test "with valid_access_token" do
     end
   end
 end
