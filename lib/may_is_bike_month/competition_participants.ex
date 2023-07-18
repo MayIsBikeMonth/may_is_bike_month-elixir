@@ -179,7 +179,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   end
 
   @doc """
-  Makes strava requests for all competition participants
+  Updates everything! This is the money shot
   """
   def update_competition_activities_from_strava() do
     list_competition_participants()
