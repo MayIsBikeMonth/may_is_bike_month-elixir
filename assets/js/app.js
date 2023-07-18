@@ -22,6 +22,8 @@ import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+import TimeParser from "./time_parser"
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } })
 
@@ -77,3 +79,10 @@ toggleActivities = (_event) => {
   document.querySelectorAll(".activityList").forEach(el => el.classList.toggle("hidden"))
 }
 document.querySelector('#toggleIndividualActivities').addEventListener("click", toggleActivities)
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!window.timeParser) { window.timeParser = new TimeParser() }
+  window.timeParser.localize()
+  window.addEventListener("phx:update", function() { window.timeParser.localize() })
+})
