@@ -15,9 +15,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   @included_strava_visibilities ["everyone", "followers_only"]
 
   import Ecto.Query, warn: false
-  alias MayIsBikeMonth.Repo
-
-  alias MayIsBikeMonth.CompetitionActivities.CompetitionActivity
+  alias MayIsBikeMonth.{Repo, CompetitionActivities.CompetitionActivity, CompetitionParticipants}
 
   @doc """
   Returns the list of competition_activities.
@@ -140,6 +138,7 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     %{
       strava_id: "#{strava_data["id"]}",
       start_date: start_date,
+      end_date: calculate_end_date(start_at, timezone, strava_data["moving_time"]),
       timezone: timezone,
       start_at: start_at,
       display_name: strava_data["name"],
@@ -153,24 +152,26 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     visibility in @included_strava_visibilities
   end
 
-  # TODO: This is messy
-  def calculated_include_in_competition?(competition_participant, strava_data) do
-    included_activity_type =
-      MayIsBikeMonth.CompetitionParticipants.included_activity_type?(
+  # competition_participant, strava_data["visibility"], strava_data["type"], strava_data["distance"], strava_attrs.start_date, strava_attrs.end_date
+  def include_in_competition?(
         competition_participant,
-        strava_data["type"]
-      )
-
-    included_distance =
-      MayIsBikeMonth.CompetitionParticipants.included_distance?(
-        competition_participant,
-        strava_data["distance"]
-      )
-
-    visible = included_visibility?(strava_data["visibility"])
-
+        %{
+          visibility: visibility,
+          type: type,
+          distance: distance,
+          start_date: start_date,
+          end_date: end_date
+        }
+      ) do
     competition_participant.include_in_competition &&
-      visible && included_activity_type && included_distance
+      included_visibility?(visibility) &&
+      CompetitionParticipants.included_activity_type?(competition_participant, type) &&
+      CompetitionParticipants.included_distance?(competition_participant, distance) &&
+      CompetitionParticipants.included_in_competition_period?(
+        competition_participant,
+        start_date,
+        end_date
+      )
   end
 
   @doc """
@@ -180,12 +181,20 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   def create_or_update_from_strava_data(competition_participant, strava_data) do
     strava_attrs = strava_attrs_from_data(strava_data)
 
+    included_in_competition =
+      include_in_competition?(competition_participant, %{
+        visibility: strava_data["visibility"],
+        type: strava_data["type"],
+        distance: strava_data["distance"],
+        start_date: strava_attrs.start_date,
+        end_date: strava_attrs.end_date
+      })
+
     new_attrs =
       Map.merge(strava_attrs, %{
         competition_participant_id: competition_participant.id,
         strava_data: Map.drop(strava_data, @ignored_strava_keys),
-        include_in_competition:
-          calculated_include_in_competition?(competition_participant, strava_data)
+        include_in_competition: included_in_competition
       })
 
     with {:ok, competition_activity} <-
@@ -207,6 +216,10 @@ defmodule MayIsBikeMonth.CompetitionActivities do
   def activity_dates(start_at_or_date, end_at_or_date) do
     Date.range(start_at_or_date, end_at_or_date)
     |> Enum.to_list()
+  end
+
+  def calculate_end_date(start_at, timezone, moving_seconds) do
+    List.last(activity_dates(start_at, timezone, moving_seconds))
   end
 
   @doc """

@@ -23,10 +23,12 @@ defmodule MayIsBikeMonth.StravaTest do
 
     test "with invalid code" do
       use_cassette "exchange_access_token-fail" do
-        {:error, errors} =
+        {:error, error_response} =
           Strava.exchange_access_token(code: "e8ab449eb83bd71b3ddc81d0a7a5c77b7ad0685f")
 
-        assert errors["message"] == "Bad Request"
+        assert Map.keys(error_response) == [:body, :status]
+        assert error_response.status == 400
+        assert error_response.body["message"] == "Bad Request"
       end
     end
   end
@@ -42,7 +44,7 @@ defmodule MayIsBikeMonth.StravaTest do
           })
 
         assert strava_token.access_token == "xxxxxx"
-        assert strava_token.expired == true
+        assert strava_token.active == false
         {:ok, new_token_response} = Strava.refresh_access_token(strava_token.refresh_token)
         assert new_token_response["access_token"] == "xxxxxx"
         assert new_token_response["refresh_token"] == strava_token.refresh_token
@@ -59,9 +61,37 @@ defmodule MayIsBikeMonth.StravaTest do
           })
 
         assert strava_token.access_token == "xxxxxx"
-        assert strava_token.expired == true
+        assert strava_token.active == false
         {:error, error_response} = Strava.refresh_access_token(strava_token.refresh_token)
-        assert(error_response["message"] == "Bad Request")
+        assert error_response.status == 400
+        assert(error_response.body["message"] == "Bad Request")
+      end
+    end
+  end
+
+  describe "get_activities" do
+    test "success" do
+      use_cassette "get_activities-success" do
+        access_token = "xxxxxx"
+        {:ok, activities_response} = Strava.get_activities(access_token, %{per_page: 1})
+        assert Enum.count(activities_response) == 1
+      end
+    end
+
+    test "error" do
+      use_cassette "get_activities-fail" do
+        access_token = "xxxxxx"
+        {:error, error_response} = Strava.get_activities(access_token, %{per_page: 1})
+
+        assert Map.keys(error_response) == [:body, :status]
+        assert error_response.status == 401
+
+        assert error_response.body == %{
+                 "errors" => [
+                   %{"code" => "invalid", "field" => "access_token", "resource" => "Athlete"}
+                 ],
+                 "message" => "Authorization Error"
+               }
       end
     end
   end

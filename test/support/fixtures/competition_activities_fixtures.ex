@@ -28,6 +28,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesFixtures do
         competition_participant_id: competition_participant_id,
         strava_id: "9073105198",
         start_date: start_date,
+        end_date: start_date,
         timezone: timezone,
         start_at: start_at,
         display_name: "Some bike ride",

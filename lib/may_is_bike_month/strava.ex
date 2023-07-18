@@ -18,6 +18,8 @@ defmodule MayIsBikeMonth.Strava do
   end
 
   def refresh_access_token(refresh_token) do
+    HTTPoison.start()
+
     body =
       Jason.encode!(%{
         refresh_token: refresh_token,
@@ -28,6 +30,13 @@ defmodule MayIsBikeMonth.Strava do
     tuple_response(
       HTTPoison.post(token_url("refresh_token"), body, [{"Content-Type", "application/json"}])
     )
+  end
+
+  def get_activities(access_token, parameters \\ %{}) do
+    HTTPoison.start()
+    url = "https://www.strava.com/api/v3/athlete/activities?#{URI.encode_query(parameters)}"
+    headers = [{"Authorization", "Bearer #{access_token}"}, {"Content-Type", "application/json"}]
+    tuple_response(HTTPoison.get(url, headers))
   end
 
   defp token_url(grant_type), do: "https://www.strava.com/oauth/token?grant_type=#{grant_type}"
@@ -42,11 +51,11 @@ defmodule MayIsBikeMonth.Strava do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, Jason.decode!(body)}
 
-      {:ok, %HTTPoison.Response{status_code: 400, body: body}} ->
-        {:error, Jason.decode!(body)}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        {:error, %{status: status_code, body: Jason.decode!(body)}}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
+        {:error, %{status: 0, body: reason}}
     end
   end
 end

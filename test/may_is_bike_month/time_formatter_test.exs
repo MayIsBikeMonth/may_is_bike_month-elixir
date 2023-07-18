@@ -42,6 +42,13 @@ defmodule MayIsBikeMonth.TimeFormatterTest do
     end
   end
 
+  describe "format/2 (naivedatetime, format" do
+    test "out_format :unix" do
+      assert TimeFormatter.format(~U[2023-06-25 20:29:00Z], :unix) == 1_687_724_940
+      assert TimeFormatter.format(~N[2023-06-25 20:29:00], :unix) == 1_687_724_940
+    end
+  end
+
   describe "format/2 (datetime, format)" do
     test "out_format: strftime" do
       # Calendar.strftime/2 doesn't accept flags or %l (2023-6-27)

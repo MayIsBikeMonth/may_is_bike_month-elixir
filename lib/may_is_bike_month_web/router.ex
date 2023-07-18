@@ -22,12 +22,12 @@ defmodule MayIsBikeMonthWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MayIsBikeMonthWeb do
-  #   pipe_through :api
-  # end
+    live_session :default,
+      on_mount: [{MayIsBikeMonthWeb.ParticipantAuth, :current_participant}] do
+      live "/strava_requests", StravaRequestLive.Index, :index
+    end
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:may_is_bike_month, :dev_routes) do

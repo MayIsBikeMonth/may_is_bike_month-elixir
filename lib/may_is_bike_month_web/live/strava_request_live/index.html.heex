@@ -1,0 +1,24 @@
+<.header>
+  Listing Strava requests
+</.header>
+
+<.table id="strava_requests" rows={@streams.strava_requests}>
+  <:col :let={{_id, strava_request}} label="Requested at">
+    <span class="convertTime preciseTime">
+      <%= MayIsBikeMonth.TimeFormatter.format(strava_request.inserted_at, :unix) %>
+    </span>
+  </:col>
+  <:col :let={{_id, strava_request}} label="Kind"><%= strava_request.kind %></:col>
+  <:col :let={{_id, strava_request}} label="Status"><%= strava_request.status %></:col>
+  <:col :let={{_id, strava_request}} label="Error response">
+    <%= inspect(strava_request.error_response) %>
+  </:col>
+  <:col :let={{_id, strava_request}} label="Params">
+    <%= inspect(strava_request.parameters) %>
+  </:col>
+  <:col :let={{_id, strava_request}} label="Participant">
+    <%= if strava_request.participant_id && strava_request.participant do %>
+      <%= strava_request.participant.display_name %>
+    <% end %>
+  </:col>
+</.table>

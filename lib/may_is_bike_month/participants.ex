@@ -18,7 +18,7 @@ defmodule MayIsBikeMonth.Participants do
 
   """
   def list_participants(opts) do
-    Repo.all(from p in Participant, limit: ^Keyword.fetch!(opts, :limit))
+    Repo.all(from(p in Participant, limit: ^Keyword.fetch!(opts, :limit)))
   end
 
   def list_participants, do: list_participants(limit: 100)
@@ -67,17 +67,42 @@ defmodule MayIsBikeMonth.Participants do
       order_by: [desc: :id]
     )
     |> Repo.all()
-    |> Enum.map(&strava_token_with_expired/1)
+    |> Enum.map(&strava_token_with_active/1)
   end
 
   def list_strava_tokens, do: list_strava_tokens(limit: 100)
+
+  def strava_token_active?(_error_response), do: false
+
+  def strava_token_active?(error_response, %DateTime{} = expires_at) do
+    if error_response && error_response != %{} do
+      false
+    else
+      DateTime.compare(DateTime.utc_now(), expires_at) == :lt
+    end
+  end
 
   def strava_token_for_participant(%Participant{} = participant) do
     from(StravaToken, order_by: [desc: :id])
     |> where(participant_id: ^participant.id)
     |> first()
     |> Repo.one()
-    |> strava_token_with_expired()
+    |> strava_token_with_active()
+  end
+
+  # Requests the strava_token for the participant, refreshes if required
+  def active_strava_token_for_participant(%Participant{} = participant) do
+    strava_token = strava_token_for_participant(participant)
+
+    if strava_token && strava_token.active do
+      strava_token
+    else
+      if strava_token && strava_token.error_response == %{} do
+        refreshed_access_token(strava_token)
+      else
+        nil
+      end
+    end
   end
 
   @doc """
@@ -234,7 +259,12 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   # Virtual attribute setting!
-  defp strava_token_with_expired(%StravaToken{} = strava_token) do
-    %{strava_token | expired: DateTime.utc_now() > strava_token.expires_at}
+  defp strava_token_with_active(nil), do: nil
+
+  defp strava_token_with_active(%StravaToken{} = strava_token) do
+    %{
+      strava_token
+      | active: strava_token_active?(strava_token.error_response, strava_token.expires_at)
+    }
   end
 end

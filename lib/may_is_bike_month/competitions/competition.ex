@@ -35,13 +35,11 @@ defmodule MayIsBikeMonth.Competitions.Competition do
         add_error(changeset, :start_date, "cannot be later than 'end_date'")
 
       _ ->
-        today = Date.utc_today()
-
-        active =
-          start_date && end_date && Date.compare(today, start_date) != :lt &&
-            Date.compare(today, end_date) != :gt
-
-        put_change(changeset, :active, active)
+        put_change(
+          changeset,
+          :active,
+          MayIsBikeMonth.Competitions.competition_active?(start_date, end_date)
+        )
     end
   end
 

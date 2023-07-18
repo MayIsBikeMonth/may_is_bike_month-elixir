@@ -8,6 +8,7 @@ defmodule MayIsBikeMonth.TimeFormatter do
   # When that changes, we can switch from using timex to using the standard lib
   def format(%DateTime{} = time, :time_parser), do: time_parser_format(time)
   def format(%DateTime{} = time, :extended), do: format(time, "%Y-%m-%d %H:%M:%S %Z")
+  def format(%DateTime{} = time, :unix), do: DateTime.to_unix(time)
 
   def format(%DateTime{} = time, out_format) do
     cond do
@@ -23,6 +24,12 @@ defmodule MayIsBikeMonth.TimeFormatter do
         # This doesn't have any strfime formatting. Could be the format was originall %Z (which was already replaced)
         out_format
     end
+  end
+
+  def format(%NaiveDateTime{} = time, out_format) do
+    time
+    |> DateTime.from_naive!("Etc/UTC")
+    |> format(out_format)
   end
 
   def format(%Date{} = date, out_format) do
