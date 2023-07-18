@@ -25,6 +25,26 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       assert CompetitionActivities.list_competition_activities() == [competition_activity]
     end
 
+    test "calculate_end_date/3" do
+      assert CompetitionActivities.calculate_end_date(
+               ~U[2023-05-28 06:08:57Z],
+               "America/Los_Angeles",
+               129_600
+             ) == ~D[2023-05-29]
+
+      assert CompetitionActivities.calculate_end_date(
+               ~U[2023-05-28 06:08:57Z],
+               "America/Los_Angeles",
+               129_600
+             ) == ~D[2023-05-29]
+
+      assert CompetitionActivities.calculate_end_date(
+               ~U[2023-05-28 06:08:57Z],
+               "America/Los_Angeles",
+               129_600
+             ) == ~D[2023-05-29]
+    end
+
     test "list_competition_activities/2 filters by competition_participant_id and period" do
       competition_activity1 = competition_activity_fixture(start_at: ~U[2023-05-24 14:08:57Z])
       assert competition_activity1.id != nil
@@ -36,6 +56,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
           strava_id: "69",
           start_at: ~U[2023-05-28 06:08:57Z],
           moving_seconds: 129_600,
+          end_date: ~D[2023-05-29],
           competition_participant_id: competition_participant.id,
           include_in_competition: false
         })
@@ -151,6 +172,7 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
       target_strava_attrs = %{
         strava_id: "9073105197",
         start_date: ~D[2023-05-14],
+        end_date: ~D[2023-05-14],
         timezone: "America/Los_Angeles",
         start_at: ~U[2023-05-14 19:08:57Z],
         display_name: "Craig road ride",
@@ -290,65 +312,50 @@ defmodule MayIsBikeMonth.CompetitionActivitiesTest do
                })
     end
 
-    test "calculated_include_in_competition?/2 returns true for valid types" do
+    test "include_in_competition?/6 returns true for valid types" do
       competition_participant = competition_participant_fixture()
       assert competition_participant.include_in_competition == true
 
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "everyone",
-               "distance" => 4000
-             }) == true
+      valid_args = %{
+        visibility: "everyone",
+        type: "Ride",
+        distance: 4000,
+        start_date: ~D[2023-05-14],
+        end_date: ~D[2023-05-14]
+      }
 
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Velomobile",
-               "visibility" => "everyone",
-               "distance" => 4000
-             }) == true
+      assert CompetitionActivities.include_in_competition?(competition_participant, valid_args)
 
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "VirtualRide",
-               "visibility" => "everyone",
-               "distance" => 4000
-             }) == false
-    end
+      additional_valid_args = [
+        %{type: "Velomobile"},
+        %{visibility: "followers_only"},
+        %{distance: 3300},
+        %{start_date: ~D[2023-04-30], end_date: ~D[2023-05-01]},
+        %{start_date: ~D[2023-05-31], end_date: ~D[2023-05-31]},
+        %{start_date: ~D[2023-05-31], end_date: ~D[2023-06-01]}
+      ]
 
-    test "calculated_include_in_competition?/2 returns true for valid visibility" do
-      competition_participant = competition_participant_fixture()
+      for arg <- additional_valid_args do
+        assert CompetitionActivities.include_in_competition?(
+                 competition_participant,
+                 Map.merge(valid_args, arg)
+               )
+      end
 
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "everyone",
-               "distance" => 4000
-             }) == true
+      invalid_args = [
+        %{type: "VirtualRide"},
+        %{visibility: "only_me"},
+        %{distance: 2000},
+        %{start_date: ~D[2023-04-30], end_date: ~D[2023-04-30]},
+        %{start_date: ~D[2023-06-01], end_date: ~D[2023-06-02]}
+      ]
 
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "followers_only",
-               "distance" => 4000
-             }) == true
-
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "only_me",
-               "distance" => 4000
-             }) == false
-    end
-
-    test "calculated_include_in_competition?/2 returns true for valid distances" do
-      competition_participant = competition_participant_fixture()
-
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "everyone",
-               "distance" => 3300
-             }) == true
-
-      assert CompetitionActivities.calculated_include_in_competition?(competition_participant, %{
-               "type" => "Ride",
-               "visibility" => "everyone",
-               "distance" => 2000
-             }) == false
+      for arg <- invalid_args do
+        assert CompetitionActivities.include_in_competition?(
+                 competition_participant,
+                 Map.merge(valid_args, arg)
+               ) == false
+      end
     end
 
     test "activity_dates/3 returns single date for a short ride" do

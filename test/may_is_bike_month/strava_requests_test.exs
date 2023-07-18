@@ -91,12 +91,7 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
       use_cassette "get_activities-for_competition-success" do
         competition = competition_fixture()
         participant = participant_fixture()
-
-        strava_token =
-          strava_token_fixture(%{
-            "participant_id" => participant.id,
-            "access_token" => "xxxxxxxx"
-          })
+        strava_token_fixture(%{"participant_id" => participant.id, "access_token" => "xxxxxxxx"})
 
         assert StravaRequests.list_strava_requests() == []
 

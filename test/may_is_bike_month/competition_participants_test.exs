@@ -192,6 +192,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
         competition_activity_fixture(%{
           strava_id: "3",
           start_at: ~U[2023-05-28 06:08:57Z],
+          end_date: ~D[2023-05-29],
           moving_seconds: 129_600,
           competition_participant_id: competition_participant.id
         })
@@ -270,11 +271,51 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert CompetitionParticipants.empty_score_data(competition.id) ==
                %{
                  "dates" => [],
+                 "start_date" => "2023-05-01",
+                 "end_date" => "2023-05-31",
                  "distance_meters" => 0,
                  "elevation_meters" => 0,
                  "score" => 0,
                  "periods" => Enum.map(competition.periods, fn _ -> empty_period_data end)
                }
+    end
+
+    # OMFG comparing dates is a huge pain in the dick
+    test "included_in_competition_period?/4" do
+      assert CompetitionParticipants.included_in_competition_period?(
+               ~D[2023-05-01],
+               ~D[2023-05-31],
+               ~D[2023-04-30],
+               ~D[2023-05-31]
+             )
+
+      assert CompetitionParticipants.included_in_competition_period?(
+               ~D[2023-05-01],
+               ~D[2023-05-31],
+               ~D[2023-05-01],
+               ~D[2023-05-01]
+             )
+
+      assert CompetitionParticipants.included_in_competition_period?(
+               ~D[2023-05-01],
+               ~D[2023-05-31],
+               ~D[2023-05-31],
+               ~D[2023-06-01]
+             )
+
+      assert CompetitionParticipants.included_in_competition_period?(
+               ~D[2023-05-01],
+               ~D[2023-05-31],
+               ~D[2023-06-01],
+               ~D[2023-06-01]
+             ) == false
+
+      assert CompetitionParticipants.included_in_competition_period?(
+               ~D[2023-05-01],
+               ~D[2023-05-31],
+               ~D[2023-04-30],
+               ~D[2023-04-30]
+             ) == false
     end
 
     test "calculate_scoring_periods_with_activities/2 with multiple" do
@@ -296,6 +337,7 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
         strava_id: "2",
         start_at: ~U[2023-05-28 06:08:57Z],
         moving_seconds: 129_600,
+        end_date: ~D[2023-05-29],
         competition_participant_id: competition_participant.id
       })
 
@@ -352,8 +394,10 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
                "dates",
                "distance_meters",
                "elevation_meters",
+               "end_date",
                "periods",
-               "score"
+               "score",
+               "start_date"
              ]
 
       dates = Enum.to_list(scoring_data["dates"]) |> Enum.map(fn date -> "#{date}" end)

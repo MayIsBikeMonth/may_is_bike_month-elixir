@@ -42,21 +42,5 @@ defmodule MayIsBikeMonth.CompetitionActivities.CompetitionActivity do
     |> unique_constraint(:competition_participant_id_strava_id,
       name: "competition_activities_competition_participant_id_strava_id_ind"
     )
-    |> with_end_date()
-  end
-
-  defp with_end_date(changeset) do
-    start_at = get_field(changeset, :start_at)
-    moving_seconds = get_field(changeset, :moving_seconds)
-    timezone = get_field(changeset, :timezone)
-
-    if start_at && moving_seconds && timezone do
-      dates =
-        MayIsBikeMonth.CompetitionActivities.activity_dates(start_at, timezone, moving_seconds)
-
-      put_change(changeset, :end_date, List.last(dates))
-    else
-      changeset
-    end
   end
 end

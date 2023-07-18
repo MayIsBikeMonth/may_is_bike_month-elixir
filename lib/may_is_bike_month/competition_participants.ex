@@ -137,6 +137,36 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     competition_participant.included_activity_types || @default_included_activity_types
   end
 
+  def included_in_competition_period?(
+        %CompetitionParticipant{} = competition_participant,
+        start_date,
+        end_date
+      ) do
+    included_in_competition_period?(
+      Date.from_iso8601!(competition_participant.score_data["start_date"]),
+      Date.from_iso8601!(competition_participant.score_data["end_date"]),
+      start_date,
+      end_date
+    )
+  end
+
+  def included_in_competition_period?(
+        %Date{} = comp_start_date,
+        %Date{} = comp_end_date,
+        %Date{} = act_start_date,
+        %Date{} = act_end_date
+      ) do
+    # Since we test that the competition start_date is before the competition end_date:
+    # if act_end_date <= comp_end_date
+    if Date.compare(act_end_date, comp_end_date) != :gt do
+      # act_end_date >= comp_start_date
+      Date.compare(act_end_date, comp_start_date) != :lt
+    else
+      # act_start_date <= comp_end_date
+      Date.compare(act_start_date, comp_end_date) != :gt
+    end
+  end
+
   def included_activity_type?(%CompetitionParticipant{} = competition_participant, activity_type) do
     Enum.member?(
       included_activity_types(competition_participant),
@@ -169,7 +199,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     competition = MayIsBikeMonth.Competitions.get_competition!(competition_id)
 
     calculate_scoring_periods_with_activities(nil, competition.periods)
-    |> scoring_periods_with_scoring_data()
+    |> scoring_periods_with_scoring_data(competition.start_date, competition.end_date)
   end
 
   def calculate_scoring_data(%CompetitionParticipant{} = competition_participant) do
@@ -181,13 +211,16 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   defp calculate_scoring_data(competition_participant_id, competition) do
     calculate_scoring_periods_with_activities(competition_participant_id, competition.periods)
-    |> scoring_periods_with_scoring_data()
+    |> scoring_periods_with_scoring_data(competition.start_date, competition.end_date)
   end
 
-  defp scoring_periods_with_scoring_data(scoring_periods_with_activities) do
+  # NOTE: this takes start_date and end_date so included_in_competition_period? doesn't need to load the competition
+  defp scoring_periods_with_scoring_data(scoring_periods_with_activities, start_date, end_date) do
     score_data = dates_distance_elevation(scoring_periods_with_activities)
 
     Map.merge(score_data, %{
+      "start_date" => Date.to_string(start_date),
+      "end_date" => Date.to_string(end_date),
       "periods" => scoring_periods_with_activities,
       "score" => calculate_score(score_data["dates"], score_data["distance_meters"])
     })
