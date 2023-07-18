@@ -151,17 +151,4 @@ defmodule MayIsBikeMonth.StravaRequests do
   def delete_strava_request(%StravaRequest{} = strava_request) do
     Repo.delete(strava_request)
   end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking strava_request changes.
-
-  ## Examples
-
-      iex> change_strava_request(strava_request)
-      %Ecto.Changeset{data: %StravaRequest{}}
-
-  """
-  def change_strava_request(%StravaRequest{} = strava_request, attrs \\ %{}) do
-    StravaRequest.changeset(strava_request, attrs)
-  end
 end
