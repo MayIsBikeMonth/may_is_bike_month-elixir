@@ -178,12 +178,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
-  # Convenience, update all the scores
-  def update_calculated_scores() do
-    competition_participants = list_competition_participants()
-
-    Enum.each(competition_participants, fn competition_participant ->
-      update_calculated_score(competition_participant)
+  def update_competition_activities_from_strava() do
+    list_competition_participants()
+    |> Enum.each(fn cp ->
+      MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
     end)
   end
 
