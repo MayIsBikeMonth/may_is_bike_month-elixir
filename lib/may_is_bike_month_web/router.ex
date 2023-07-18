@@ -29,6 +29,15 @@ defmodule MayIsBikeMonthWeb.Router do
   #   pipe_through :api
   # end
 
+  scope "/", MayIsBikeMonthWeb do
+    pipe_through :browser
+    # pipe_through [:browser, :require_authenticated_participant]
+
+    # live_session :require_authenticated_user, on_mount: [{MayIsBikeMonthWeb.ParticipantAuth, :ensure_authenticated}] do
+    live "/strava_requests", StravaRequestLive.Index, :index
+    # end
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:may_is_bike_month, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put

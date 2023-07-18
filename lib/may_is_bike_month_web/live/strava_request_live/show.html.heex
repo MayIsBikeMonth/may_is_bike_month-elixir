@@ -1,0 +1,29 @@
+<.header>
+  Strava request <%= @strava_request.id %>
+  <:subtitle>This is a strava_request record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/strava_requests/#{@strava_request}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit strava_request</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Type"><%= @strava_request.type %></:item>
+  <:item title="Status"><%= @strava_request.status %></:item>
+  <:item title="Error response"><%= @strava_request.error_response %></:item>
+  <:item title="Options"><%= @strava_request.options %></:item>
+</.list>
+
+<.back navigate={~p"/strava_requests"}>Back to strava_requests</.back>
+
+<.modal :if={@live_action == :edit} id="strava_request-modal" show on_cancel={JS.patch(~p"/strava_requests/#{@strava_request}")}>
+  <.live_component
+    module={MayIsBikeMonthWeb.StravaRequestLive.FormComponent}
+    id={@strava_request.id}
+    title={@page_title}
+    action={@live_action}
+    strava_request={@strava_request}
+    patch={~p"/strava_requests/#{@strava_request}"}
+  />
+</.modal>

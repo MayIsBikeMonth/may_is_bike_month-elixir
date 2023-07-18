@@ -1,0 +1,44 @@
+<.header>
+  Listing Strava requests
+  <:actions>
+    <.link patch={~p"/strava_requests/new"}>
+      <.button>New Strava request</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="strava_requests"
+  rows={@streams.strava_requests}
+  row_click={fn {_id, strava_request} -> JS.navigate(~p"/strava_requests/#{strava_request}") end}
+>
+  <:col :let={{_id, strava_request}} label="Type"><%= strava_request.type %></:col>
+  <:col :let={{_id, strava_request}} label="Status"><%= strava_request.status %></:col>
+  <:col :let={{_id, strava_request}} label="Error response"><%= strava_request.error_response %></:col>
+  <:col :let={{_id, strava_request}} label="Options"><%= strava_request.options %></:col>
+  <:action :let={{_id, strava_request}}>
+    <div class="sr-only">
+      <.link navigate={~p"/strava_requests/#{strava_request}"}>Show</.link>
+    </div>
+    <.link patch={~p"/strava_requests/#{strava_request}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, strava_request}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: strava_request.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="strava_request-modal" show on_cancel={JS.patch(~p"/strava_requests")}>
+  <.live_component
+    module={MayIsBikeMonthWeb.StravaRequestLive.FormComponent}
+    id={@strava_request.id || :new}
+    title={@page_title}
+    action={@live_action}
+    strava_request={@strava_request}
+    patch={~p"/strava_requests"}
+  />
+</.modal>
