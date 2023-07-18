@@ -15,6 +15,22 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     CompetitionParticipants.CompetitionParticipant
   }
 
+  def subscribe do
+    Phoenix.PubSub.subscribe(MayIsBikeMonth.PubSub, "competition_participants")
+  end
+
+  def broadcast({:ok, competition_participant}, tag) do
+    Phoenix.PubSub.broadcast(
+      MayIsBikeMonth.PubSub,
+      "competition_participants",
+      {tag, competition_participant}
+    )
+
+    {:ok, competition_participant}
+  end
+
+  def broadcast({:error, _competition_participant} = error, _tag), do: error
+
   @doc """
   Returns the list of competition_participants.
 
@@ -77,6 +93,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> CompetitionParticipant.changeset(attrs)
     |> Repo.insert()
     |> with_participant()
+    |> broadcast(:competition_participant_created)
   end
 
   defp with_participant({:error, changeset}), do: {:error, changeset}
@@ -102,6 +119,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> CompetitionParticipant.changeset(attrs)
     |> Repo.update()
     |> with_participant()
+    |> broadcast(:competition_participant_updated)
   end
 
   @doc """
