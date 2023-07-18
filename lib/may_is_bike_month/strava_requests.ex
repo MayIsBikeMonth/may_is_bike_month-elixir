@@ -21,6 +21,12 @@ defmodule MayIsBikeMonth.StravaRequests do
     Repo.all(StravaRequest)
   end
 
+  def list_strava_requests_load_participant do
+    from(StravaRequest, order_by: [desc: :id])
+    |> Repo.all()
+    |> Repo.preload(:participant)
+  end
+
   @doc """
   Gets a single strava_request.
 

@@ -78,8 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
 toggleActivities = (_event) => {
   document.querySelectorAll(".activityList").forEach(el => el.classList.toggle("hidden"))
 }
-document.querySelector('#toggleIndividualActivities').addEventListener("click", toggleActivities)
-
+document.querySelector('#toggleIndividualActivities')?.addEventListener("click", toggleActivities)
 
 document.addEventListener('DOMContentLoaded', function() {
   if (!window.timeParser) { window.timeParser = new TimeParser() }
