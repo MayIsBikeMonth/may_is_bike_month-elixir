@@ -1,14 +1,11 @@
 defmodule MayIsBikeMonth.ParticipantsTest do
   use MayIsBikeMonth.DataCase
 
-  alias MayIsBikeMonth.Participants
+  alias MayIsBikeMonth.{Participants, Participants.Participant}
+
+  import MayIsBikeMonth.{ParticipantsFixtures, StravaTokensFixtures}
 
   describe "participants" do
-    alias MayIsBikeMonth.Participants.Participant
-
-    import MayIsBikeMonth.ParticipantsFixtures
-    import MayIsBikeMonth.StravaTokensFixtures
-
     @invalid_attrs %{
       strava_id: nil,
       strava_username: nil
@@ -34,7 +31,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       assert Participants.list_strava_tokens() == [strava_token]
     end
 
-    test "participant_from_strava_token_response/4 creates a strava_token" do
+    test "participant_from_strava_token_response/1 creates a strava_token" do
       {:ok, participant} =
         Participants.participant_from_strava_token_response(example_strava_token_response())
 
@@ -43,6 +40,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
 
       strava_token = Participants.strava_token_for_participant(participant)
       assert strava_token.participant_id == participant.id
+      assert strava_token.error_response == %{}
       assert strava_token.active == true
 
       # Create another token, test that the newest one is returned
@@ -56,7 +54,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       assert strava_token2.id > strava_token.id
     end
 
-    test "participant_from_strava_token_response/4 creates a strava_token for an existing participant" do
+    test "participant_from_strava_token_response/1 creates a strava_token for an existing participant" do
       participant = participant_fixture()
       assert Participants.list_strava_tokens() == []
       strava_token_attrs = example_strava_token_response(strava_id: participant.strava_id)
@@ -70,6 +68,29 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       strava_token = Enum.at(Participants.list_strava_tokens(), 0)
       assert strava_token.participant_id == participant.id
       assert strava_token.active == true
+    end
+
+    test "active_strava_token_for_participant/1 gets strava_token" do
+      participant = participant_fixture()
+      strava_token = strava_token_fixture(%{participant_id: participant.id})
+      assert strava_token.active == true
+      assert Participants.active_strava_token_for_participant(participant) == strava_token
+    end
+
+    test "active_strava_token_for_participant/1 is nil if active strava_token is impossible" do
+      participant = participant_fixture()
+      assert Participants.active_strava_token_for_participant(participant) == nil
+      error_response = %{body: %{"message" => "invalid_grant"}}
+
+      {:ok, strava_token} =
+        Participants.add_error_to_strava_token(
+          strava_token_fixture(%{participant_id: participant.id}),
+          error_response
+        )
+
+      assert strava_token.error_response == error_response
+      assert strava_token.active == false
+      assert Participants.active_strava_token_for_participant(participant) == nil
     end
 
     test "create_or_update_participant/1 with valid data creates a participant and updates the participant" do
@@ -186,10 +207,12 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       participant = participant_fixture()
       assert %Ecto.Changeset{} = Participants.change_participant(participant)
     end
+  end
 
+  describe "participants with vcr" do
     use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
-    test "refresh_access_token/1 creates a new access token" do
+    test "refreshed_access_token/1 creates a new access token" do
       setup_vcr()
 
       use_cassette "refresh_access_token-success" do
@@ -206,7 +229,7 @@ defmodule MayIsBikeMonth.ParticipantsTest do
       end
     end
 
-    test "refresh_access_token/1 adds an error to the access token" do
+    test "refreshed_access_token/1 adds an error to the access token" do
       setup_vcr()
 
       use_cassette "refresh_access_token-fail" do
@@ -218,16 +241,20 @@ defmodule MayIsBikeMonth.ParticipantsTest do
         {:error, errored_strava_token} = Participants.refreshed_access_token(strava_token)
         assert errored_strava_token.id == strava_token.id
         assert errored_strava_token.participant_id == strava_token.participant_id
+        assert errored_strava_token.active == false
 
         assert errored_strava_token.error_response == %{
-                 "errors" => [
-                   %{
-                     "code" => "invalid",
-                     "field" => "refresh_token",
-                     "resource" => "RefreshToken"
-                   }
-                 ],
-                 "message" => "Bad Request"
+                 status: 400,
+                 body: %{
+                   "errors" => [
+                     %{
+                       "code" => "invalid",
+                       "field" => "refresh_token",
+                       "resource" => "RefreshToken"
+                     }
+                   ],
+                   "message" => "Bad Request"
+                 }
                }
 
         assert Enum.count(Participants.list_strava_tokens()) == 1

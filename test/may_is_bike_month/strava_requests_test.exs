@@ -1,15 +1,17 @@
 defmodule MayIsBikeMonth.StravaRequestsTest do
   use MayIsBikeMonth.DataCase
 
-  alias MayIsBikeMonth.StravaRequests
+  alias MayIsBikeMonth.{StravaRequests, StravaRequests.StravaRequest}
+
+  import MayIsBikeMonth.{
+    CompetitionsFixtures,
+    ParticipantsFixtures,
+    StravaRequestsFixtures,
+    StravaTokensFixtures
+  }
 
   describe "strava_requests" do
-    alias MayIsBikeMonth.StravaRequests.StravaRequest
-
-    import MayIsBikeMonth.ParticipantsFixtures
-    import MayIsBikeMonth.StravaRequestsFixtures
-
-    @invalid_attrs %{status: nil, type: nil}
+    @invalid_attrs %{status: nil, kind: nil}
 
     test "list_strava_requests/0 returns all strava_requests" do
       strava_request = strava_request_fixture()
@@ -29,9 +31,9 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
 
       valid_attrs = %{
         error_response: %{},
-        options: %{},
+        parameters: %{},
         status: 200,
-        type: :get_activities,
+        kind: :get_activities,
         participant_id: participant.id
       }
 
@@ -39,9 +41,9 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
                StravaRequests.create_strava_request(valid_attrs)
 
       assert strava_request.error_response == %{}
-      assert strava_request.options == %{}
+      assert strava_request.parameters == %{}
       assert strava_request.status == 200
-      assert strava_request.type == :get_activities
+      assert strava_request.kind == :get_activities
       assert strava_request.participant_id == participant.id
     end
 
@@ -50,9 +52,9 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
 
       valid_attrs = %{
         error_response: %{"error" => ["something", "Stuff"]},
-        options: %{},
+        parameters: %{},
         status: 400,
-        type: :get_activities,
+        kind: :get_activities,
         participant_id: participant.id
       }
 
@@ -60,9 +62,9 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
                StravaRequests.create_strava_request(valid_attrs)
 
       assert strava_request.error_response == valid_attrs[:error_response]
-      assert strava_request.options == %{}
+      assert strava_request.parameters == %{}
       assert strava_request.status == 400
-      assert strava_request.type == :get_activities
+      assert strava_request.kind == :get_activities
       assert strava_request.participant_id == participant.id
     end
 
@@ -76,6 +78,41 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
 
       assert_raise Ecto.NoResultsError, fn ->
         StravaRequests.get_strava_request!(strava_request.id)
+      end
+    end
+  end
+
+  describe "strava_requests with vcr" do
+    use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
+
+    test "request_participant_activities_for_competition/2 returns the participant's activities" do
+      setup_vcr()
+
+      use_cassette "get_activities-for_competition-success" do
+        competition = competition_fixture()
+        participant = participant_fixture()
+
+        strava_token =
+          strava_token_fixture(%{
+            "participant_id" => participant.id,
+            "access_token" => "xxxxxxxx"
+          })
+
+        assert StravaRequests.list_strava_requests() == []
+
+        {:ok, activities} =
+          StravaRequests.request_participant_activities_for_competition(participant, competition)
+
+        assert Enum.count(activities) == 19
+
+        strava_request = StravaRequests.list_strava_requests() |> Enum.at(0)
+        assert strava_request.status == 200
+        assert strava_request.error_response == %{}
+        assert strava_request.participant_id == participant.id
+        assert strava_request.kind == :get_activities
+
+        assert strava_request.parameters ==
+                 StravaRequests.parameters_for_activities_for_competition(competition)
       end
     end
   end

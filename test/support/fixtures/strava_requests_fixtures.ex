@@ -23,7 +23,7 @@ defmodule MayIsBikeMonth.StravaRequestsFixtures do
         error_response: %{},
         options: %{},
         status: 200,
-        type: :get_activities,
+        kind: :get_activities,
         participant_id: participant_id
       })
       |> MayIsBikeMonth.StravaRequests.create_strava_request()

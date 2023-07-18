@@ -8,13 +8,13 @@
       <%= MayIsBikeMonth.TimeFormatter.format(strava_request.inserted_at, :unix) %>
     </span>
   </:col>
-  <:col :let={{_id, strava_request}} label="Type"><%= strava_request.type %></:col>
+  <:col :let={{_id, strava_request}} label="Kind"><%= strava_request.kind %></:col>
   <:col :let={{_id, strava_request}} label="Status"><%= strava_request.status %></:col>
   <:col :let={{_id, strava_request}} label="Error response">
     <%= inspect(strava_request.error_response) %>
   </:col>
-  <:col :let={{_id, strava_request}} label="Options">
-    <%= inspect(strava_request.options) %>
+  <:col :let={{_id, strava_request}} label="Params">
+    <%= inspect(strava_request.parameters) %>
   </:col>
   <:col :let={{_id, strava_request}} label="Participant">
     <%= if strava_request.participant_id && strava_request.participant do %>

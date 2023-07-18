@@ -31,7 +31,12 @@ defmodule MayIsBikeMonth.Participants.StravaToken do
 
   def with_active(changeset) do
     expires_at = get_field(changeset, :expires_at)
+    error_response = get_field(changeset, :error_response)
 
-    put_change(changeset, :active, MayIsBikeMonth.Participants.strava_token_active?(expires_at))
+    put_change(
+      changeset,
+      :active,
+      MayIsBikeMonth.Participants.strava_token_active?(error_response, expires_at)
+    )
   end
 end

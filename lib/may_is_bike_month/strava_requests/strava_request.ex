@@ -4,9 +4,9 @@ defmodule MayIsBikeMonth.StravaRequests.StravaRequest do
 
   schema "strava_requests" do
     field :error_response, :map, default: %{}
-    field :options, :map, default: %{}
+    field :parameters, :map, default: %{}
     field :status, :integer
-    field :type, Ecto.Enum, values: [get_activities: 0]
+    field :kind, Ecto.Enum, values: [get_activities: 0]
     belongs_to :participant, MayIsBikeMonth.Participants.Participant
 
     timestamps()
@@ -15,7 +15,7 @@ defmodule MayIsBikeMonth.StravaRequests.StravaRequest do
   @doc false
   def changeset(strava_request, attrs) do
     strava_request
-    |> cast(attrs, [:type, :status, :error_response, :options, :participant_id])
-    |> validate_required([:type, :status])
+    |> cast(attrs, [:kind, :status, :error_response, :parameters, :participant_id])
+    |> validate_required([:kind, :status])
   end
 end

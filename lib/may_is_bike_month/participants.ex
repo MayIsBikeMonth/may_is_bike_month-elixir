@@ -72,10 +72,14 @@ defmodule MayIsBikeMonth.Participants do
 
   def list_strava_tokens, do: list_strava_tokens(limit: 100)
 
-  def strava_token_active?(), do: false
+  def strava_token_active?(_error_response), do: false
 
-  def strava_token_active?(%DateTime{} = expires_at) do
-    DateTime.utc_now() < expires_at
+  def strava_token_active?(error_response, %DateTime{} = expires_at) do
+    if error_response && error_response != %{} do
+      false
+    else
+      DateTime.utc_now() < expires_at
+    end
   end
 
   def strava_token_for_participant(%Participant{} = participant) do
@@ -84,6 +88,21 @@ defmodule MayIsBikeMonth.Participants do
     |> first()
     |> Repo.one()
     |> strava_token_with_active()
+  end
+
+  # Requests the strava_token for the participant, refreshes if required
+  def active_strava_token_for_participant(%Participant{} = participant) do
+    strava_token = strava_token_for_participant(participant)
+
+    if strava_token && strava_token.active do
+      strava_token
+    else
+      if strava_token && strava_token.error_response == %{} do
+        refreshed_access_token(strava_token)
+      else
+        nil
+      end
+    end
   end
 
   @doc """
@@ -240,7 +259,12 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   # Virtual attribute setting!
+  defp strava_token_with_active(nil), do: nil
+
   defp strava_token_with_active(%StravaToken{} = strava_token) do
-    %{strava_token | active: strava_token_active?(strava_token.expires_at)}
+    %{
+      strava_token
+      | active: strava_token_active?(strava_token.error_response, strava_token.expires_at)
+    }
   end
 end
