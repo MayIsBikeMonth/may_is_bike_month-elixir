@@ -51,6 +51,9 @@ COPY lib lib
 
 COPY assets assets
 
+# Required because of nodejs
+RUN cd assets && npm install
+
 # compile assets
 RUN mix assets.deploy
 

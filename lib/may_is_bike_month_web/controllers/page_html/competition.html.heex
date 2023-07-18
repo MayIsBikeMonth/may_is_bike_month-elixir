@@ -89,12 +89,12 @@
             <% # TODO: if the date is before the period.start_date, skip rendering! %>
             <div class="grid grid-cols-3">
               <div class="px-1 border-r py-1 elevation-cell">
-                <span class="hidden unit-metric">
+                <small class="hidden unit-metric">
                   <.number_display number={score_period["elevation_meters"]} />
-                </span>
-                <span class="hidden unit-imperial">
+                </small>
+                <small class="hidden unit-imperial">
                   <.number_display number={score_period["elevation_meters"] * 3.28084} />
-                </span>
+                </small>
               </div>
               <div class="px-1 border-r py-1">
                 <span class="hidden unit-metric">
@@ -148,14 +148,14 @@
           <td scope="col" class="text-black font-bold align-top">
             <div class="grid grid-cols-3">
               <div class="px-1 border-r py-1 elevation-cell">
-                <span class="hidden unit-metric">
+                <small class="hidden unit-metric">
                   <.number_display number={competition_participant.score_data["elevation_meters"]} />
-                </span>
-                <span class="hidden unit-imperial">
+                </small>
+                <small class="hidden unit-imperial">
                   <.number_display number={
                     competition_participant.score_data["elevation_meters"] * 3.28084
                   } />
-                </span>
+                </small>
               </div>
               <div class="px-1 border-r py-1">
                 <span class="hidden unit-metric">
@@ -190,9 +190,9 @@
           <td scope="col" class="text-black font-bold border-r-2">
             <div class="grid grid-cols-3">
               <div class="px-1 border-r pt-2 elevation-cell">
-                <span class="unit-elevation">
+                <small class="unit-elevation">
                   <.number_display number={0} />
-                </span>
+                </small>
               </div>
               <div class="px-1 border-r pt-2">
                 <span class="unit-distance">

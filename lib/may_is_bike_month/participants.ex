@@ -98,7 +98,9 @@ defmodule MayIsBikeMonth.Participants do
       strava_token
     else
       if strava_token && strava_token.error_response == %{} do
-        refreshed_access_token(strava_token)
+        {:ok, token} = refreshed_access_token(strava_token)
+        # LOL, sorry, this is garbage
+        token
       else
         nil
       end

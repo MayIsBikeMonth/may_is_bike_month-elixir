@@ -10,7 +10,10 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
 
-  alias MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
+  alias MayIsBikeMonth.{
+    Competitions,
+    CompetitionParticipants.CompetitionParticipant
+  }
 
   @doc """
   Returns the list of competition_participants.
@@ -178,8 +181,13 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
-  def update_competition_activities_from_strava() do
-    list_competition_participants()
+  @doc """
+  Updates everything! This is the money shot
+  """
+  def update_from_strava(), do: update_from_strava(Competitions.current_competition())
+
+  def update_from_strava(competition) do
+    for_competition(competition)
     |> Enum.each(fn cp ->
       MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
     end)
