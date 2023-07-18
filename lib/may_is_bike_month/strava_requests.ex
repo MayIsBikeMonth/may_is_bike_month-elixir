@@ -6,7 +6,14 @@ defmodule MayIsBikeMonth.StravaRequests do
   import Ecto.Query, warn: false
   alias MayIsBikeMonth.Repo
 
-  alias MayIsBikeMonth.{StravaRequests.StravaRequest, Strava, Participants}
+  alias MayIsBikeMonth.{
+    Competitions,
+    CompetitionActivities,
+    CompetitionParticipants,
+    Participants,
+    StravaRequests.StravaRequest,
+    Strava
+  }
 
   @doc """
   Returns the list of strava_requests.
@@ -93,6 +100,30 @@ defmodule MayIsBikeMonth.StravaRequests do
 
           {:error, error_response}
       end
+    end
+  end
+
+  @doc """
+  Creates the strava activities. This is the money shot
+  """
+  def update_competition_participant_activities(competition_participant) do
+    competition = Competitions.get_competition!(competition_participant.competition_id)
+
+    with {:ok, activites} <-
+           request_participant_activities_for_competition(
+             competition_participant.participant,
+             competition
+           ),
+         _created_competition_activities <-
+           Enum.map(activites, fn actv ->
+             CompetitionActivities.create_or_update_from_strava_data(
+               competition_participant,
+               actv
+             )
+           end) do
+      CompetitionParticipants.update_calculated_score(competition_participant)
+    else
+      result -> result
     end
   end
 

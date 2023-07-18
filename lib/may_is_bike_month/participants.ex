@@ -78,7 +78,7 @@ defmodule MayIsBikeMonth.Participants do
     if error_response && error_response != %{} do
       false
     else
-      DateTime.utc_now() < expires_at
+      DateTime.compare(DateTime.utc_now(), expires_at) == :lt
     end
   end
 

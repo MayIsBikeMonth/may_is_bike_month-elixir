@@ -1,10 +1,16 @@
 defmodule MayIsBikeMonth.StravaRequestsTest do
   use MayIsBikeMonth.DataCase
 
-  alias MayIsBikeMonth.{StravaRequests, StravaRequests.StravaRequest}
+  alias MayIsBikeMonth.{
+    CompetitionActivities,
+    CompetitionParticipants,
+    StravaRequests,
+    StravaRequests.StravaRequest
+  }
 
   import MayIsBikeMonth.{
     CompetitionsFixtures,
+    CompetitionParticipantsFixtures,
     ParticipantsFixtures,
     StravaRequestsFixtures,
     StravaTokensFixtures
@@ -108,6 +114,33 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
 
         assert strava_request.parameters ==
                  StravaRequests.parameters_for_activities_for_competition(competition)
+      end
+    end
+
+    test "create_or_update_competition_activities/1 creates the competition activities" do
+      setup_vcr()
+      competition_participant = competition_participant_fixture()
+
+      strava_token_fixture(%{
+        "participant_id" => competition_participant.participant_id,
+        "access_token" => "xxxxxxxxx"
+      })
+
+      use_cassette "create_or_update_competition_activities-success" do
+        assert StravaRequests.list_strava_requests() == []
+        assert competition_participant.score == 0
+
+        assert Enum.count(CompetitionActivities.list_competition_activities()) == 0
+
+        {:ok, _activities} =
+          StravaRequests.update_competition_participant_activities(competition_participant)
+
+        assert Enum.count(CompetitionActivities.list_competition_activities()) == 19
+
+        competition_participant =
+          CompetitionParticipants.get_competition_participant!(competition_participant.id)
+
+        assert competition_participant.score == 13.99999892104254
       end
     end
   end
