@@ -127,7 +127,7 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
       })
 
       use_cassette "create_or_update_competition_activities-success" do
-        assert StravaRequests.list_strava_requests() == []
+        assert Enum.count(StravaRequests.list_strava_requests()) == 0
         assert competition_participant.score == 0
 
         assert Enum.count(CompetitionActivities.list_competition_activities()) == 0
@@ -135,12 +135,18 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
         {:ok, _activities} =
           StravaRequests.update_competition_participant_activities(competition_participant)
 
+        assert Enum.count(StravaRequests.list_strava_requests()) == 1
         assert Enum.count(CompetitionActivities.list_competition_activities()) == 19
 
         competition_participant =
           CompetitionParticipants.get_competition_participant!(competition_participant.id)
 
         assert competition_participant.score == 13.99999892104254
+
+        # and just test this here, since it's important that it works
+        CompetitionParticipants.update_from_strava()
+        assert Enum.count(StravaRequests.list_strava_requests()) == 2
+        assert Enum.count(CompetitionActivities.list_competition_activities()) == 19
       end
     end
   end
