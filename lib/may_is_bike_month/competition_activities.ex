@@ -152,7 +152,6 @@ defmodule MayIsBikeMonth.CompetitionActivities do
     visibility in @included_strava_visibilities
   end
 
-  # competition_participant, strava_data["visibility"], strava_data["type"], strava_data["distance"], strava_attrs.start_date, strava_attrs.end_date
   def include_in_competition?(
         competition_participant,
         %{

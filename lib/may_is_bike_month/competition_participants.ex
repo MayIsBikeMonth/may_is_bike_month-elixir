@@ -178,6 +178,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
+  @doc """
+  Makes strava requests for all competition participants
+  """
   def update_competition_activities_from_strava() do
     list_competition_participants()
     |> Enum.each(fn cp ->
