@@ -12,7 +12,8 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   alias MayIsBikeMonth.{
     Competitions,
-    CompetitionParticipants.CompetitionParticipant
+    CompetitionParticipants.CompetitionParticipant,
+    StravaRequests
   }
 
   def subscribe do
@@ -199,6 +200,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
+  # This updates everything if there hasn't been an update in the last period
+  def update_from_strava_if_due(), do: StravaRequests.update_due?() && update_from_strava()
+
   @doc """
   Updates everything! This is the money shot
   """
@@ -209,7 +213,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
     if competition_participants do
       Enum.each(competition_participants, fn cp ->
-        MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
+        StravaRequests.update_competition_participant_activities(cp)
       end)
     end
   end

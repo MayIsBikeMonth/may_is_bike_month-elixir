@@ -10,6 +10,7 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
     with {:ok, info} <- client.exchange_access_token(code: code),
          {:ok, participant} <- Participants.participant_from_strava_token_response(info),
          {:ok, competition_participant} <- create_competition_participant(participant) do
+      # Request the competition activities from strava
       MayIsBikeMonth.StravaRequests.update_competition_participant_activities(
         competition_participant
       )
