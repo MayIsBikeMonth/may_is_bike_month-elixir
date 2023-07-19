@@ -22,17 +22,17 @@
                 "%b %-d"
               ) %>
             </span>
-            <div class="grid grid-cols-3">
+            <div class="grid grid-cols-3 min-w-[180px]">
               <div class="px-1 pb-1 border-r elevation-cell text-center">
                 ⬆️
                 <span class="font-normal">
-                  (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
+                  <span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>
                 </span>
               </div>
               <div class="px-1 pb-1 border-r text-center">
                 ➡️
                 <span class="font-normal">
-                  (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
+                  <span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>
                 </span>
               </div>
               <div class="px-1 pb-1 text-center">Days</div>
@@ -46,13 +46,13 @@
               <div class="px-1 pb-1 border-r elevation-cell text-center">
                 ⬆️
                 <span class="font-normal">
-                  (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
+                  <span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>
                 </span>
               </div>
               <div class="px-1 pb-1 border-r text-center">
                 ➡️
                 <span class="font-normal">
-                  (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
+                  <span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>
                 </span>
               </div>
               <div class="px-1 pb-1 text-center">Days</div>
@@ -115,8 +115,11 @@
               </div>
             </div>
             <%= if length(score_period["activities"]) > 0 do %>
-              <ul class="list-disc pl-4 pt-1 hidden activityList">
-                <li :for={activity <- score_period["activities"]} class="text-sm">
+              <ul class="list-disc pl-3.5 pt-1 hidden activityList">
+                <li
+                  :for={activity <- score_period["activities"]}
+                  class="text-sm mb-1 leading-none"
+                >
                   <span class="text-gray-500 text-xs">
                     <%= Enum.map_join(activity["dates"], ", ", fn d ->
                       Regex.replace(~r/\A\d\d\d\d-/, d, "")
@@ -135,13 +138,12 @@
                   <span class="text-gray-500 text-xs">
                     <span class="hidden unit-metric">
                       <.number_display number={activity["distance_meters"] / 1000} precision={1} />
-                      km
                     </span>
                     <span class="hidden unit-imperial">
                       <.number_display
                         number={activity["distance_meters"] / 1609.344}
                         precision={1}
-                      /> m
+                      />
                     </span>
                   </span>
                 </li>
