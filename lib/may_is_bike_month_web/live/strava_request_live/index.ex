@@ -5,6 +5,8 @@ defmodule MayIsBikeMonthWeb.StravaRequestLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    MayIsBikeMonth.CompetitionParticipants.update_from_strava()
+
     {:ok,
      stream(
        socket,

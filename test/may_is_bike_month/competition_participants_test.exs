@@ -428,5 +428,10 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert competition_participant.score == 5.99999750174628
       assert Jason.encode!(competition_participant.score_data) == Jason.encode!(scoring_data)
     end
+
+    test "update_from_strava" do
+      competition_fixture()
+      assert CompetitionParticipants.update_from_strava() == :ok
+    end
   end
 end

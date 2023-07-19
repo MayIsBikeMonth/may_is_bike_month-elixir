@@ -230,3 +230,15 @@
     <%= # inspect(List.first(@competition_participants), prety: true, width: 0) %>
   </code>
 </pre>
+
+<%= if MayIsBikeMonth.StravaRequests.most_recent_update() do %>
+  <small id="strava_requests_updated_at">
+    Updated at:
+    <span class="convertTime">
+      <%= MayIsBikeMonth.TimeFormatter.format(
+        MayIsBikeMonth.StravaRequests.most_recent_update(),
+        :unix
+      ) %>
+    </span>
+  </small>
+<% end %>

@@ -34,6 +34,17 @@ defmodule MayIsBikeMonth.StravaRequests do
     |> Repo.preload(:participant)
   end
 
+  def most_recent_update() do
+    most_recent =
+      from(sr in StravaRequest,
+        order_by: [desc: sr.id]
+      )
+      |> first()
+      |> Repo.one()
+
+    most_recent && most_recent.inserted_at
+  end
+
   @doc """
   Gets a single strava_request.
 
