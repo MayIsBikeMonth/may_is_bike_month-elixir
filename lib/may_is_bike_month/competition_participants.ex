@@ -205,10 +205,13 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
   def update_from_strava(), do: update_from_strava(Competitions.current_competition())
 
   def update_from_strava(competition) do
-    for_competition(competition)
-    |> Enum.each(fn cp ->
-      MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
-    end)
+    competition_participants = competition && for_competition(competition)
+
+    if competition_participants do
+      Enum.each(competition_participants, fn cp ->
+        MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
+      end)
+    end
   end
 
   def update_calculated_score(%CompetitionParticipant{} = competition_participant) do
