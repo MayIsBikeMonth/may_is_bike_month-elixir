@@ -8,6 +8,9 @@ defmodule MayIsBikeMonthWeb.PageController do
       competition_participants =
         MayIsBikeMonth.CompetitionParticipants.for_competition(competition)
 
+      # TODO, call this in the background or a socket or something
+      MayIsBikeMonth.CompetitionParticipants.update_from_strava_if_due()
+
       render(conn, :competition,
         competition: competition,
         competition_participants: competition_participants

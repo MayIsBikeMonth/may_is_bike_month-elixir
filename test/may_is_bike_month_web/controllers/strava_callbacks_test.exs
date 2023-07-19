@@ -3,7 +3,7 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
 
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
-  alias MayIsBikeMonth.Participants
+  alias MayIsBikeMonth.{CompetitionParticipants, CompetitionActivities, Participants}
 
   setup do
     ExVCR.Config.cassette_library_dir("test/support/vcr_cassettes")
@@ -44,11 +44,11 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
     conn: conn
   } do
     competition = MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
-    assert MayIsBikeMonth.CompetitionParticipants.list_competition_participants() == []
+    assert CompetitionParticipants.list_competition_participants() == []
     assert competition.active == false
 
-    use_cassette "exchange_access_token-success" do
-      params = %{"code" => "valid-code"}
+    use_cassette "exchange_access_token-competition_participant" do
+      params = %{"code" => "xxxxyyyy"}
 
       assert Participants.get_participant_by_strava_id("2430215") == nil
       assert Participants.list_strava_tokens() == []
@@ -67,14 +67,17 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
       assert strava_token.access_token == "xxxxxxx"
       assert strava_token.refresh_token == "yyyyyyy"
 
-      assert length(MayIsBikeMonth.CompetitionParticipants.list_competition_participants()) == 1
+      assert length(CompetitionParticipants.list_competition_participants()) == 1
 
       competition_participant =
-        MayIsBikeMonth.CompetitionParticipants.list_competition_participants() |> List.first()
+        CompetitionParticipants.list_competition_participants() |> List.first()
+
+      assert Enum.count(CompetitionActivities.list_competition_activities()) == 19
 
       assert competition_participant.competition_id == competition.id
       assert competition_participant.participant_id == participant.id
       assert competition_participant.include_in_competition == true
+      assert competition_participant.score == 13.99999892104254
     end
   end
 end

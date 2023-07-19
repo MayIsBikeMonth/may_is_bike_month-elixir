@@ -32,6 +32,12 @@ defmodule MayIsBikeMonth.StravaRequestsTest do
       assert StravaRequests.get_strava_request!(strava_request.id) == strava_request
     end
 
+    test "update_due?" do
+      assert StravaRequests.update_due?() == false
+      strava_request_fixture()
+      assert StravaRequests.update_due?() == false
+    end
+
     test "create_strava_request/1 with valid data creates a strava_request" do
       participant = participant_fixture()
 

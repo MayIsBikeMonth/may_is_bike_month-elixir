@@ -6,10 +6,12 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
   describe "competition_participants" do
     alias MayIsBikeMonth.CompetitionParticipants.CompetitionParticipant
 
-    import MayIsBikeMonth.CompetitionParticipantsFixtures
-    import MayIsBikeMonth.CompetitionsFixtures
-    import MayIsBikeMonth.CompetitionActivitiesFixtures
-    import MayIsBikeMonth.ParticipantsFixtures
+    import MayIsBikeMonth.{
+      CompetitionParticipantsFixtures,
+      CompetitionsFixtures,
+      CompetitionActivitiesFixtures,
+      ParticipantsFixtures
+    }
 
     @invalid_attrs %{participant_id: nil, competition_id: nil}
 

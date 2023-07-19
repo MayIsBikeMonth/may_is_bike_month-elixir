@@ -12,7 +12,8 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
   alias MayIsBikeMonth.{
     Competitions,
-    CompetitionParticipants.CompetitionParticipant
+    CompetitionParticipants.CompetitionParticipant,
+    StravaRequests
   }
 
   def subscribe do
@@ -55,6 +56,18 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     )
     |> Repo.all()
     |> Repo.preload(:participant)
+  end
+
+  # TODO: Make this more performant
+  def sum_attr(competition_participants_list, attribute) do
+    if attribute == "dates" do
+      competition_participants_list
+      |> Enum.flat_map(fn cp -> cp.score_data[attribute] end)
+      |> Enum.count()
+    else
+      competition_participants_list
+      |> Enum.reduce(0, fn cp, acc -> cp.score_data[attribute] + acc end)
+    end
   end
 
   @doc """
@@ -199,6 +212,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     distance_meters && distance_meters >= @minimum_distance
   end
 
+  # This updates everything if there hasn't been an update in the last period
+  def update_from_strava_if_due(), do: StravaRequests.update_due?() && update_from_strava()
+
   @doc """
   Updates everything! This is the money shot
   """
@@ -209,7 +225,7 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
 
     if competition_participants do
       Enum.each(competition_participants, fn cp ->
-        MayIsBikeMonth.StravaRequests.update_competition_participant_activities(cp)
+        StravaRequests.update_competition_participant_activities(cp)
       end)
     end
   end

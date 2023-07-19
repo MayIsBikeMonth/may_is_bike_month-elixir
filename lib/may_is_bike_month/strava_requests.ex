@@ -15,6 +15,8 @@ defmodule MayIsBikeMonth.StravaRequests do
     Strava
   }
 
+  @update_duration 60
+
   @doc """
   Returns the list of strava_requests.
 
@@ -34,6 +36,20 @@ defmodule MayIsBikeMonth.StravaRequests do
     |> Repo.preload(:participant)
   end
 
+  def update_due?() do
+    most_recent_update = most_recent_update()
+
+    if most_recent_update do
+      update_compare =
+        most_recent_update
+        |> DateTime.compare(DateTime.add(DateTime.utc_now(), -@update_duration))
+
+      update_compare != :gt
+    else
+      false
+    end
+  end
+
   def most_recent_update() do
     most_recent =
       from(sr in StravaRequest,
@@ -42,7 +58,7 @@ defmodule MayIsBikeMonth.StravaRequests do
       |> first()
       |> Repo.one()
 
-    most_recent && most_recent.inserted_at
+    most_recent && most_recent.inserted_at |> DateTime.from_naive!("Etc/UTC")
   end
 
   @doc """

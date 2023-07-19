@@ -1,11 +1,11 @@
 defmodule MayIsBikeMonthWeb.StravaRequestLive.Index do
   use MayIsBikeMonthWeb, :live_view
 
-  alias MayIsBikeMonth.StravaRequests
+  alias MayIsBikeMonth.{StravaRequests, CompetitionParticipants}
 
   @impl true
   def mount(_params, _session, socket) do
-    MayIsBikeMonth.CompetitionParticipants.update_from_strava()
+    CompetitionParticipants.update_from_strava_if_due()
 
     {:ok,
      stream(
