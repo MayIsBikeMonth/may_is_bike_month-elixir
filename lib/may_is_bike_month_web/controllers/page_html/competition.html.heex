@@ -190,17 +190,56 @@
           <td scope="col" class="text-black font-bold border-r-2">
             <div class="grid grid-cols-3">
               <div class="px-1 border-r pt-2 elevation-cell">
-                <small class="unit-elevation">
-                  <.number_display number={0} />
+                <small class="hidden unit-metric">
+                  <.number_display number={
+                    MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                      @competition_participants,
+                      "elevation_meters"
+                    )
+                  } />
+                </small>
+                <small class="hidden unit-imperial">
+                  <.number_display number={
+                    MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                      @competition_participants,
+                      "elevation_meters"
+                    ) * 3.28084
+                  } />
                 </small>
               </div>
               <div class="px-1 border-r pt-2">
                 <span class="unit-distance">
-                  <.number_display number={0} precision={1} />
+                  <span class="hidden unit-metric">
+                    <.number_display
+                      number={
+                        MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                          @competition_participants,
+                          "distance_meters"
+                        ) / 1000
+                      }
+                      precision={1}
+                    />
+                  </span>
+                  <span class="hidden unit-imperial">
+                    <.number_display
+                      number={
+                        MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                          @competition_participants,
+                          "distance_meters"
+                        ) / 1609.344
+                      }
+                      precision={1}
+                    />
+                  </span>
                 </span>
               </div>
               <div class="px-1 pt-2">
-                <.number_display number={0} />
+                <.number_display number={
+                  MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                    @competition_participants,
+                    "dates"
+                  )
+                } />
               </div>
             </div>
           </td>

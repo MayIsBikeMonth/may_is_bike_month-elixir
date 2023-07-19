@@ -58,6 +58,18 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> Repo.preload(:participant)
   end
 
+  # TODO: Make this more performant
+  def sum_attr(competition_participants_list, attribute) do
+    if attribute == "dates" do
+      competition_participants_list
+      |> Enum.flat_map(fn cp -> cp.score_data[attribute] end)
+      |> Enum.count()
+    else
+      competition_participants_list
+      |> Enum.reduce(0, fn cp, acc -> cp.score_data[attribute] + acc end)
+    end
+  end
+
   @doc """
   Gets a single competition_participant.
 
