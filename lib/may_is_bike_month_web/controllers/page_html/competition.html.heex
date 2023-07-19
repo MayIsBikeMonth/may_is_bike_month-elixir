@@ -9,8 +9,8 @@
 <style>
   .score-cell { display: none; }
 </style>
-<div class="relative overflow-x-scroll max-w-full py-4">
-  <div class="relative max-w-full min-w-[1300px]">
+<div class="relative overflow-x-scroll py-4 -mx-2 xl:-mx-1">
+  <div class="relative max-w-full min-w-[1300px] px-1">
     <table class="w-full text-sm text-left text-gray-800" id="competition-table">
       <thead class="text-xs text-gray-500 bg-gray-50 border-2">
         <tr>
@@ -23,39 +23,39 @@
               ) %>
             </span>
             <div class="grid grid-cols-3">
-              <div class="px-1 pb-1 border-r elevation-cell">
+              <div class="px-1 pb-1 border-r elevation-cell text-center">
                 ⬆️
                 <span class="font-normal">
                   (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
                 </span>
               </div>
-              <div class="px-1 pb-1 border-r">
+              <div class="px-1 pb-1 border-r text-center">
                 ➡️
                 <span class="font-normal">
                   (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
                 </span>
               </div>
-              <div class="px-1 pb-1">Days</div>
+              <div class="px-1 pb-1 text-center">Days</div>
             </div>
           </th>
           <th scope="col" class="text-black">
             <span class="block text-md text-center py-2">
               Total
             </span>
-            <div class="grid grid-cols-3">
-              <div class="px-1 pb-1 border-r elevation-cell">
+            <div class="grid grid-cols-3 min-w-[180px]">
+              <div class="px-1 pb-1 border-r elevation-cell text-center">
                 ⬆️
                 <span class="font-normal">
                   (<span class="hidden unit-metric">m</span><span class="hidden unit-imperial">feet</span>)
                 </span>
               </div>
-              <div class="px-1 pb-1 border-r">
+              <div class="px-1 pb-1 border-r text-center">
                 ➡️
                 <span class="font-normal">
                   (<span class="hidden unit-metric">km</span><span class="hidden unit-imperial">miles</span>)
                 </span>
               </div>
-              <div class="px-1 pb-1">Days</div>
+              <div class="px-1 pb-1 text-center">Days</div>
             </div>
           </th>
           <th scope="col" class="score-cell border-l">
@@ -91,7 +91,7 @@
           >
             <% # TODO: if the date is before the period.start_date, skip rendering! %>
             <div class="grid grid-cols-3">
-              <div class="px-1 border-r py-1 elevation-cell">
+              <div class="px-1 border-r py-1 elevation-cell text-right">
                 <small class="hidden unit-metric">
                   <.number_display number={score_period["elevation_meters"]} />
                 </small>
@@ -99,18 +99,18 @@
                   <.number_display number={score_period["elevation_meters"] * 3.28084} />
                 </small>
               </div>
-              <div class="px-1 border-r py-1">
+              <div class="px-1 border-r py-1 text-right">
                 <span class="hidden unit-metric">
                   <.number_display number={score_period["distance_meters"] / 1000} precision={1} />
                 </span>
-                <span class="hidden unit-imperial">
+                <span class="hidden unit-imperial text-right">
                   <.number_display
                     number={score_period["distance_meters"] / 1609.344}
                     precision={1}
                   />
                 </span>
               </div>
-              <div class="px-1 py-1">
+              <div class="px-1 py-1 text-right">
                 <.number_display number={length(score_period["dates"])} />
               </div>
             </div>
@@ -150,7 +150,7 @@
           </td>
           <td scope="col" class="text-black font-bold align-top">
             <div class="grid grid-cols-3">
-              <div class="px-1 border-r py-1 elevation-cell">
+              <div class="px-1 border-r py-1 elevation-cell text-right">
                 <small class="hidden unit-metric">
                   <.number_display number={competition_participant.score_data["elevation_meters"]} />
                 </small>
@@ -160,7 +160,7 @@
                   } />
                 </small>
               </div>
-              <div class="px-1 border-r py-1">
+              <div class="px-1 border-r py-1 text-right">
                 <span class="hidden unit-metric">
                   <.number_display
                     number={competition_participant.score_data["distance_meters"] / 1000}
@@ -174,25 +174,25 @@
                   />
                 </span>
               </div>
-              <div class="px-1 py-1">
+              <div class="px-1 py-1 text-right">
                 <.number_display number={length(competition_participant.score_data["dates"])} />
               </div>
             </div>
           </td>
-          <td class="score-cell border-l">
+          <td class="score-cell border-l text-right">
             <%= trunc(competition_participant.score) %>
           </td>
         </tr>
         <tr>
           <td
             colspan={length(@competition.periods) + 1}
-            class="text-right font-bold border-r-2 text-lg pr-1 pt-1"
+            class="text-right font-bold border-r-2 text-lg pr-2 pt-1"
           >
             Crushing it!
           </td>
-          <td scope="col" class="text-black font-bold border-r-2">
+          <td scope="col" class="text-black font-bold border-r-2 border-b-2">
             <div class="grid grid-cols-3">
-              <div class="px-1 border-r pt-2 elevation-cell">
+              <div class="px-1 border-r pt-2 elevation-cell text-right">
                 <small class="hidden unit-metric">
                   <.number_display number={
                     MayIsBikeMonth.CompetitionParticipants.sum_attr(
@@ -210,33 +210,31 @@
                   } />
                 </small>
               </div>
-              <div class="px-1 border-r pt-2">
-                <span class="unit-distance">
-                  <span class="hidden unit-metric">
-                    <.number_display
-                      number={
-                        MayIsBikeMonth.CompetitionParticipants.sum_attr(
-                          @competition_participants,
-                          "distance_meters"
-                        ) / 1000
-                      }
-                      precision={1}
-                    />
-                  </span>
-                  <span class="hidden unit-imperial">
-                    <.number_display
-                      number={
-                        MayIsBikeMonth.CompetitionParticipants.sum_attr(
-                          @competition_participants,
-                          "distance_meters"
-                        ) / 1609.344
-                      }
-                      precision={1}
-                    />
-                  </span>
+              <div class="px-1 border-r pt-2 text-right">
+                <span class="hidden unit-metric">
+                  <.number_display
+                    number={
+                      MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                        @competition_participants,
+                        "distance_meters"
+                      ) / 1000
+                    }
+                    precision={1}
+                  />
+                </span>
+                <span class="hidden unit-imperial">
+                  <.number_display
+                    number={
+                      MayIsBikeMonth.CompetitionParticipants.sum_attr(
+                        @competition_participants,
+                        "distance_meters"
+                      ) / 1609.344
+                    }
+                    precision={1}
+                  />
                 </span>
               </div>
-              <div class="px-1 pt-2">
+              <div class="px-1 pt-2 text-right">
                 <.number_display number={
                   MayIsBikeMonth.CompetitionParticipants.sum_attr(
                     @competition_participants,
