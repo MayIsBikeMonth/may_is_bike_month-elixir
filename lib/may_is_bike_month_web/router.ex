@@ -58,4 +58,6 @@ defmodule MayIsBikeMonthWeb.Router do
 
     delete "/signout", OAuthCallbackController, :sign_out
   end
+
+  use Kaffy.Routes, scope: "/admin", pipe_through: [:browser, :require_authenticated_admin]
 end

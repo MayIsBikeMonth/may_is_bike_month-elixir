@@ -49,7 +49,7 @@ defmodule MayIsBikeMonth.Participants do
   end
 
   def admin?(%Participant{} = participant) do
-    participant.strava_id in MayIsBikeMonth.config([:strava, :admin_ids])
+    participant.strava_id in String.split(MayIsBikeMonth.config([:strava, :admin_ids]), ",")
   end
 
   @doc """
@@ -268,5 +268,10 @@ defmodule MayIsBikeMonth.Participants do
       strava_token
       | active: strava_token_active?(strava_token.error_response, strava_token.expires_at)
     }
+  end
+
+  def count_participants do
+    query = from(p in Participant, select: count(p.id))
+    Repo.one(query) || 0
   end
 end

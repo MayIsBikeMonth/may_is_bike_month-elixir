@@ -20,6 +20,12 @@ config :may_is_bike_month, MayIsBikeMonthWeb.Endpoint,
   pubsub_server: MayIsBikeMonth.PubSub,
   live_view: [signing_salt: "V2Bd6lRr"]
 
+config :kaffy,
+  otp_app: :may_is_bike_month,
+  ecto_repo: MayIsBikeMonth.Repo,
+  router: MayIsBikeMonthWeb.Router,
+  admin_logo: "/images/logo.svg"
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
