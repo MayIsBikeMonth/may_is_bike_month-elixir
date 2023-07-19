@@ -131,7 +131,7 @@ defmodule MayIsBikeMonthWeb.ParticipantAuth do
       assign(conn, :current_admin, participant)
     else
       conn
-      |> put_flash(:error, "You must be logged into access that page")
+      |> put_flash(:error, "You must be an admin to access that page")
       |> maybe_store_return_to()
       |> redirect(to: "/")
       |> halt()

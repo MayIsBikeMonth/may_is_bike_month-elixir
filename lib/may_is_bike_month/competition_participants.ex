@@ -329,4 +329,9 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
         Enum.reduce(activities_data, 0, fn a_data, acc -> a_data["elevation_meters"] + acc end)
     }
   end
+
+  def count_competition_participants do
+    query = from(p in CompetitionParticipant, select: count(p.id))
+    Repo.one(query) || 0
+  end
 end
