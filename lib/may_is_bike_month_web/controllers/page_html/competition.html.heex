@@ -70,7 +70,10 @@
           class={"border-b-2 #{if (rem(ind, 2) == 1), do: 'bg-gray-50', else: 'bg-white'} border-r-2"}
         >
           <th scope="row" class="px-2 py-1 font-medium whitespace-nowrap border-l-2 border-r-2">
-            <a href={"https://www.strava.com/athletes/#{competition_participant.participant.strava_id}"}>
+            <a
+              href={"https://www.strava.com/athletes/#{competition_participant.participant.strava_id}"}
+              class="underline"
+            >
               <%= competition_participant.participant.display_name %>
             </a>
           </th>
@@ -253,13 +256,13 @@
   <h4 class="text-lg">
     <span class="hidden unit-metric">
       Distance and elevation are in metric.
-      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">
+      <a class="underline cursor-pointer toggleUnitPreference">
         Switch to imperial
       </a>
     </span>
     <span class="hidden unit-imperial">
       Distance and elevation are in imperial.
-      <a class="text-blue-800 underline cursor-pointer toggleUnitPreference">Switch to metric</a>
+      <a class="underline cursor-pointer toggleUnitPreference">Switch to metric</a>
     </span>
   </h4>
 </div>
