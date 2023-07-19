@@ -8,8 +8,11 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
     client = strava_client(conn)
 
     with {:ok, info} <- client.exchange_access_token(code: code),
-         {:ok, participant} <- Participants.participant_from_strava_token_response(info) do
-      create_competition_participant(participant)
+         {:ok, participant} <- Participants.participant_from_strava_token_response(info),
+         {:ok, competition_participant} <- create_competition_participant(participant) do
+      MayIsBikeMonth.StravaRequests.update_competition_participant_activities(
+        competition_participant
+      )
 
       conn
       |> put_flash(:info, "Welcome #{participant.display_name}")
@@ -21,7 +24,7 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
         conn
         |> put_flash(
           :error,
-          "We were unable to fetch the necessary information from your GithHub account"
+          "We were unable to fetch the necessary information from your Strava account"
         )
         |> redirect(to: "/")
 
@@ -56,6 +59,8 @@ defmodule MayIsBikeMonthWeb.OAuthCallbackController do
         participant_id: participant.id,
         include_in_competition: true
       })
+    else
+      {:error, "No current competition"}
     end
   end
 end
