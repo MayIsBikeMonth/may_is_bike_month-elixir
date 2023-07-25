@@ -107,7 +107,7 @@ defmodule MayIsBikeMonth.StravaRequests do
 
     strava_token = Participants.active_strava_token_for_participant(participant)
 
-    if strava_token do
+    if strava_token && strava_token.active do
       attrs = %{
         parameters: request_parameters,
         status: 200,
