@@ -26,12 +26,18 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
     end
 
     test "get_competition_participant!/1 returns the competition_participant with given id" do
+      assert CompetitionParticipants.get_competition_participant(0, 0) == nil
       competition_participant = competition_participant_fixture()
 
       assert CompetitionParticipants.get_competition_participant!(competition_participant.id) ==
                competition_participant
 
       assert competition_participant.included_activity_types == nil
+
+      assert CompetitionParticipants.get_competition_participant(
+               competition_participant.competition_id,
+               competition_participant.participant_id
+             ) == competition_participant
     end
 
     test "competition_fixture uses passed in competition and participant" do

@@ -101,8 +101,6 @@ defmodule MayIsBikeMonth.Participants do
       _ ->
         if strava_token && strava_token.active do
           strava_token
-        else
-          nil
         end
     end
   end
