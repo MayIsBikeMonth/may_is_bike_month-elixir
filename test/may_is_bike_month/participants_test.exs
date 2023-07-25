@@ -212,6 +212,36 @@ defmodule MayIsBikeMonth.ParticipantsTest do
   describe "participants with vcr" do
     use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
+    test "active_strava_token_for_participant/1 tries again if timed out" do
+      setup_vcr()
+
+      participant = participant_fixture()
+
+      {:ok, new_token} =
+        MayIsBikeMonth.Participants.create_strava_token(
+          participant.id,
+          "xxxxxxx",
+          "yyyyyyy",
+          DateTime.to_unix(DateTime.add(DateTime.utc_now(), 20721))
+        )
+
+      {:ok, strava_token} =
+        Participants.add_error_to_strava_token(new_token, %{"body" => "timeout", "status" => 0})
+
+      assert Enum.count(Participants.list_strava_tokens()) == 1
+      assert Participants.refresh_access_token?(strava_token)
+
+      use_cassette "active_strava_token_for_participant-success_with_error" do
+        refreshed_token = Participants.active_strava_token_for_participant(participant)
+        assert Enum.count(Participants.list_strava_tokens()) == 2
+        assert refreshed_token.error_response == %{}
+        assert refreshed_token.active == true
+        assert refreshed_token.id != strava_token.id
+        assert Participants.active_strava_token_for_participant(participant) == refreshed_token
+        assert Enum.count(Participants.list_strava_tokens()) == 2
+      end
+    end
+
     test "refreshed_access_token/1 creates a new access token" do
       setup_vcr()
 
