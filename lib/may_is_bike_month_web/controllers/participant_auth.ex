@@ -92,6 +92,7 @@ defmodule MayIsBikeMonthWeb.ParticipantAuth do
   """
   def fetch_current_participant(conn, _opts) do
     participant_id = get_session(conn, :participant_id)
+    Honeybadger.context(user_id: participant_id)
     participant = participant_id && Participants.get_participant(participant_id)
     assign(conn, :current_participant, participant)
   end

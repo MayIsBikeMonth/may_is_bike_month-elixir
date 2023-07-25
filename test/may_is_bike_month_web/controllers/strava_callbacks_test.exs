@@ -47,6 +47,8 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
     assert CompetitionParticipants.list_competition_participants() == []
     assert competition.active == false
 
+    # NOTE: Manually edited cassette to prevent expiration - updated expires_at with
+    # DateTime.to_unix(~U[2030-06-25 20:29:00Z])
     use_cassette "exchange_access_token-competition_participant" do
       params = %{"code" => "xxxxyyyy"}
 
