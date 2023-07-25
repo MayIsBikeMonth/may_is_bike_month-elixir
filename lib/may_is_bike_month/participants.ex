@@ -99,7 +99,7 @@ defmodule MayIsBikeMonth.Participants do
     else
       if strava_token && strava_token.error_response == %{} do
         # When loading the page for the first time, this times out (and returns :error)
-        # ... return nil
+        # ... return nil (sorry, this is garbage)
         {response, refreshed_token} = refreshed_access_token(strava_token)
         if response == :ok, do: refreshed_token
       end
