@@ -89,6 +89,15 @@ defmodule MayIsBikeMonth.CompetitionParticipants do
     |> Repo.preload(:participant)
   end
 
+  def get_competition_participant(competition_id, participant_id) do
+    from(cp in CompetitionParticipant,
+      where: cp.competition_id == ^competition_id,
+      where: cp.participant_id == ^participant_id
+    )
+    |> Repo.one()
+    |> Repo.preload(:participant)
+  end
+
   @doc """
   Creates a competition_participant.
 

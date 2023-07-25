@@ -94,15 +94,14 @@ defmodule MayIsBikeMonth.Participants do
   def active_strava_token_for_participant(%Participant{} = participant) do
     strava_token = strava_token_for_participant(participant)
 
-    if strava_token && strava_token.active do
-      strava_token
+    with true <- refresh_access_token?(strava_token),
+         {:ok, refreshed_token} <- refreshed_access_token(strava_token) do
+      refreshed_token
     else
-      if strava_token && strava_token.error_response == %{} do
-        # When loading the page for the first time, this times out (and returns :error)
-        # ... return nil (sorry, this is garbage)
-        {response, refreshed_token} = refreshed_access_token(strava_token)
-        if response == :ok, do: refreshed_token
-      end
+      _ ->
+        if strava_token && strava_token.active do
+          strava_token
+        end
     end
   end
 
@@ -158,6 +157,23 @@ defmodule MayIsBikeMonth.Participants do
       update_participant(participant, attrs)
     else
       create_participant(attrs)
+    end
+  end
+
+  # When loading the page for the first time, this times out (and returns :error)
+  # ... return nil (sorry, this is garbage)
+  @ignored_strava_bodies ["timeout"]
+  def refresh_access_token?(), do: false
+  def refresh_access_token?(nil), do: false
+
+  def refresh_access_token?(%StravaToken{} = strava_token) do
+    if strava_token.active do
+      false
+    else
+      body = strava_token.error_response["body"] || strava_token.error_response[:body]
+
+      strava_token.error_response == %{} ||
+        body in @ignored_strava_bodies
     end
   end
 
