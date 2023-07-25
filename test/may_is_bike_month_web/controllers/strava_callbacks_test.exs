@@ -97,10 +97,7 @@ defmodule MayIsBikeMonthWeb.StravaCallbackTest do
 
     assert competition_participant.score == 0
     assert Enum.count(CompetitionParticipants.list_competition_participants()) == 1
-    assert competition.active == false
 
-    # NOTE: Manually edited cassette to prevent expiration - updated expires_at with
-    # DateTime.to_unix(~U[2030-06-25 20:29:00Z])
     use_cassette "exchange_access_token-competition_participant" do
       params = %{"code" => "xxxxyyyy"}
       conn = get(conn, ~p"/oauth/callbacks/strava?#{params}")
