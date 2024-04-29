@@ -22,6 +22,7 @@ defmodule MayIsBikeMonthWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/update_strava", PageController, :update_strava
 
     live_session :default,
       on_mount: [{MayIsBikeMonthWeb.ParticipantAuth, :current_participant}] do
