@@ -19,6 +19,6 @@ defmodule MayIsBikeMonthWeb.PageController do
 
   def update_strava(conn, _params) do
     MayIsBikeMonth.CompetitionParticipants.update_from_strava_if_due()
-    render(conn, {})
+    json(conn, {message: "success"})
   end
 end

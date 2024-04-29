@@ -80,17 +80,18 @@ toggleActivities = (_event) => {
 }
 document.querySelector('#toggleIndividualActivities')?.addEventListener("click", toggleActivities)
 
-// window.updateStravaInBackground = () => {
-//   const response = await fetch("/update_strava.json");
-//   const update_response = await response.json();
-//   console.log(update_response);
-// }
+window.updateStravaInBackground = async function() {
+  const response = await fetch("/update_strava");
+  const update_response = await response.json();
+  console.log(update_response);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   if (!window.timeParser) { window.timeParser = new TimeParser() }
   window.timeParser.localize()
   window.addEventListener("phx:update", function() { window.timeParser.localize() })
-  // setInterval(function() {
-  //   updateStravaInBackground()
-  // }, 300000); // Update strava in background every 5 minutes
+  updateStravaInBackground()
+  setInterval(function() {
+    updateStravaInBackground()
+  }, 650000); // Update strava in background every 10+ minutes
 })
