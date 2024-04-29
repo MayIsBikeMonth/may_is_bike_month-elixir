@@ -8,9 +8,6 @@ defmodule MayIsBikeMonthWeb.PageController do
       competition_participants =
         MayIsBikeMonth.CompetitionParticipants.for_competition(competition)
 
-      # TODO, call this in the background or a socket or something
-      MayIsBikeMonth.CompetitionParticipants.update_from_strava_if_due()
-
       render(conn, :competition,
         competition: competition,
         competition_participants: competition_participants
@@ -18,5 +15,10 @@ defmodule MayIsBikeMonthWeb.PageController do
     else
       render(conn, :home)
     end
+  end
+
+  def update_strava(conn, _params) do
+    MayIsBikeMonth.CompetitionParticipants.update_from_strava_if_due()
+    render(conn, {})
   end
 end
