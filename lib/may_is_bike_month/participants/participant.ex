@@ -37,7 +37,7 @@ defmodule MayIsBikeMonth.Participants.Participant do
   defp with_display_name(changeset) do
     display_name = get_field(changeset, :display_name)
     strava_username = get_field(changeset, :strava_username)
-    strava_username = get_field(changeset, :first_name)
+    first_name = get_field(changeset, :first_name)
     put_change(changeset, :display_name, display_name || strava_username || first_name)
   end
 end
