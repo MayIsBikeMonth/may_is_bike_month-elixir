@@ -24,6 +24,6 @@ defmodule MayIsBikeMonthWeb.PageControllerTest do
 
     assert competition_participant.competition_id == competition.id
     conn = get(conn, ~p"/update_strava")
-    assert json_response(conn, 200) =~ %{message: "success"}
+    assert json_response(conn, 200)["data"] =~ %{message: "success"}
   end
 end

@@ -75,6 +75,7 @@ defmodule MayIsBikeMonth.TimeFormatterTest do
       assert TimeFormatter.format(time, "%Z") == "EAT"
     end
 
+    # TODO: Fix test!
     # Commented out; needs to be updated to use dynamic recent time
     # test "out_format: time_parser" do
     #   time = TimeFormatter.in_timezone(~U[2023-06-24 20:29:00Z], "Africa/Nairobi")
@@ -120,6 +121,7 @@ defmodule MayIsBikeMonth.TimeFormatterTest do
       assert TimeFormatter.format(time, :time_parser) == "Tomorrow 2:00am"
     end
 
+    # TODO: Fix test!
     # Commented out; needs to be updated to use dynamic recent time
     # test "out_format: time_parser next year" do
     #   time = TimeFormatter.in_timezone(~U[2024-06-25 20:29:00Z], "America/Chicago")
