@@ -19,3 +19,9 @@ To run the tests and rerun on save:
 
   * Run `mix test.watch --stale`
   * If you want to just rerun failing tests until the pass, run `mix test.watch --failed`
+
+---
+
+Admin interface is accessible via
+
+https://may-is-bike-month.fly.dev/admin
