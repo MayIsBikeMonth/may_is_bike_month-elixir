@@ -28,7 +28,6 @@ defmodule MayIsBikeMonth.Participants.Participant do
       :image_url
     ])
     |> validate_required([
-      :strava_username,
       :strava_id
     ])
     |> with_display_name()
@@ -38,6 +37,6 @@ defmodule MayIsBikeMonth.Participants.Participant do
   defp with_display_name(changeset) do
     display_name = get_field(changeset, :display_name)
     strava_username = get_field(changeset, :strava_username)
-    put_change(changeset, :display_name, display_name || strava_username)
+    put_change(changeset, :display_name, display_name || strava_username || :first_name)
   end
 end

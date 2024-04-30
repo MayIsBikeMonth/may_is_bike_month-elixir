@@ -14,16 +14,16 @@ defmodule MayIsBikeMonthWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "May is Bike Month"
   end
 
-  # test "GET /update_strava", %{conn: conn} do
-  #   competition = MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
+  test "GET /update_strava", %{conn: conn} do
+    competition = MayIsBikeMonth.CompetitionsFixtures.competition_fixture()
 
-  #   competition_participant =
-  #     MayIsBikeMonth.CompetitionParticipantsFixtures.competition_participant_fixture(
-  #       competition_id: competition.id
-  #     )
+    competition_participant =
+      MayIsBikeMonth.CompetitionParticipantsFixtures.competition_participant_fixture(
+        competition_id: competition.id
+      )
 
-  #   assert competition_participant.competition_id == competition.id
-  #   conn = get(conn, ~p"/update_strava")
-  #   assert html_response(conn, 200)
-  # end
+    assert competition_participant.competition_id == competition.id
+    conn = get(conn, ~p"/update_strava")
+    assert json_response(conn, 200) =~ %{message: "success"}
+  end
 end
