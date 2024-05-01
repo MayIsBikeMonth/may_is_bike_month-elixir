@@ -84,6 +84,9 @@ window.updateStravaInBackground = async function() {
   const response = await fetch("/update_strava");
   const update_response = await response.json();
   console.log(update_response);
+  setInterval(function() {
+    window.updateStravaInBackground()
+  }, 650000); // Update strava in background every 10+ minutes
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -91,7 +94,4 @@ document.addEventListener('DOMContentLoaded', function() {
   window.timeParser.localize()
   window.addEventListener("phx:update", function() { window.timeParser.localize() })
   updateStravaInBackground()
-  setInterval(function() {
-    updateStravaInBackground()
-  }, 650000); // Update strava in background every 10+ minutes
 })

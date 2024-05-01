@@ -24,6 +24,7 @@ defmodule MayIsBikeMonth.Competitions do
 
   def current_competition do
     Competition
+    |> last
     |> Repo.one()
     |> with_virtual_attributes()
   end
