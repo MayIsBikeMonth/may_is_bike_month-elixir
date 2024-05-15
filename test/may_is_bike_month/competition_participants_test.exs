@@ -96,6 +96,19 @@ defmodule MayIsBikeMonth.CompetitionParticipantsTest do
       assert competition_participant.score == 0
     end
 
+    test "update_competition_participant/2 with non float updates the competition_participant" do
+      competition_participant = competition_participant_fixture()
+      update_attrs = %{score: 0}
+
+      assert {:ok, %CompetitionParticipant{} = competition_participant} =
+               CompetitionParticipants.update_competition_participant(
+                 competition_participant,
+                 update_attrs
+               )
+
+      assert competition_participant.score == 0
+    end
+
     test "update_competition_participant/2 with invalid data returns error changeset" do
       competition_participant = competition_participant_fixture()
 

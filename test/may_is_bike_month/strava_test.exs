@@ -26,7 +26,7 @@ defmodule MayIsBikeMonth.StravaTest do
         {:error, error_response} =
           Strava.exchange_access_token(code: "e8ab449eb83bd71b3ddc81d0a7a5c77b7ad0685f")
 
-        assert Map.keys(error_response) == [:body, :status]
+        assert Map.keys(error_response) == [:status, :body]
         assert error_response.status == 400
         assert error_response.body["message"] == "Bad Request"
       end
@@ -83,7 +83,7 @@ defmodule MayIsBikeMonth.StravaTest do
         access_token = "xxxxxx"
         {:error, error_response} = Strava.get_activities(access_token, %{per_page: 1})
 
-        assert Map.keys(error_response) == [:body, :status]
+        assert Map.keys(error_response) == [:status, :body]
         assert error_response.status == 401
 
         assert error_response.body == %{
